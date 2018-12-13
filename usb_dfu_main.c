@@ -4,6 +4,7 @@
  * \brief Application implement
  *
  * Copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
+ * Copyright (c) 2018 sysmocom -s.f.m.c. GmbH, Author: Kevin Redon <kredon@sysmocom.de>
  *
  * \asf_license_start
  *
@@ -40,5 +41,5 @@
 int main(void)
 {
 	atmel_start_init();
-	cdcd_acm_example();
+	usb_dfu();
 }

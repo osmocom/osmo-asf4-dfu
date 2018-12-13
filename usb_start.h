@@ -1,9 +1,19 @@
 /*
- * Code generated from Atmel Start.
+ * (C) 2018, sysmocom -s.f.m.c. GmbH, Author: Kevin Redon <kredon@sysmocom.de>
  *
- * This file will be overwritten when reconfiguring your Atmel Start project.
- * Please copy examples or other code you want to keep to a separate file or main.c
- * to avoid loosing it when reconfiguring.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #ifndef USB_DEVICE_MAIN_H
 #define USB_DEVICE_MAIN_H
@@ -12,11 +22,11 @@
 extern "C" {
 #endif // __cplusplus
 
-#include "cdcdf_acm.h"
-#include "cdcdf_acm_desc.h"
+#include "dfudf.h"
+#include "dfudf_desc.h"
 
-void cdcd_acm_example(void);
-void cdc_device_acm_init(void);
+void usb_dfu(void);
+void usb_dfu_init(void);
 
 /**
  * \berif Initialize USB

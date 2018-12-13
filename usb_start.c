@@ -1,9 +1,19 @@
 /*
- * Code generated from Atmel Start.
+ * (C) 2018, sysmocom -s.f.m.c. GmbH, Author: Kevin Redon <kredon@sysmocom.de>
  *
- * This file will be overwritten when reconfiguring your Atmel Start project.
- * Please copy examples or other code you want to keep to a separate file or main.c
- * to avoid loosing it when reconfiguring.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include "atmel_start.h"
 #include "usb_start.h"
@@ -11,16 +21,14 @@
 #if CONF_USBD_HS_SP
 static uint8_t single_desc_bytes[] = {
     /* Device descriptors and Configuration descriptors list. */
-    CDCD_ACM_HS_DESCES_LS_FS};
+    DFUD_HS_DESCES_LS_FS};
 static uint8_t single_desc_bytes_hs[] = {
     /* Device descriptors and Configuration descriptors list. */
-    CDCD_ACM_HS_DESCES_HS};
-#define CDCD_ECHO_BUF_SIZ CONF_USB_CDCD_ACM_DATA_BULKIN_MAXPKSZ_HS
+    DFUD_HS_DESCES_HS};
 #else
 static uint8_t single_desc_bytes[] = {
     /* Device descriptors and Configuration descriptors list. */
-    CDCD_ACM_DESCES_LS_FS};
-#define CDCD_ECHO_BUF_SIZ CONF_USB_CDCD_ACM_DATA_BULKIN_MAXPKSZ
+    DFUD_DESCES_LS_FS};
 #endif
 
 static struct usbd_descriptors single_desc[]
@@ -31,62 +39,19 @@ static struct usbd_descriptors single_desc[]
 #endif
 };
 
-/** Buffers to receive and echo the communication bytes. */
-static uint32_t usbd_cdc_buffer[CDCD_ECHO_BUF_SIZ / 4];
-
 /** Ctrl endpoint buffer */
 static uint8_t ctrl_buffer[64];
 
 /**
- * \brief Callback invoked when bulk OUT data received
+ * \brief USB DFU Init
  */
-static bool usb_device_cb_bulk_out(const uint8_t ep, const enum usb_xfer_code rc, const uint32_t count)
-{
-	cdcdf_acm_write((uint8_t *)usbd_cdc_buffer, count);
-
-	/* No error. */
-	return false;
-}
-
-/**
- * \brief Callback invoked when bulk IN data received
- */
-static bool usb_device_cb_bulk_in(const uint8_t ep, const enum usb_xfer_code rc, const uint32_t count)
-{
-	/* Echo data. */
-	cdcdf_acm_read((uint8_t *)usbd_cdc_buffer, sizeof(usbd_cdc_buffer));
-
-	/* No error. */
-	return false;
-}
-
-/**
- * \brief Callback invoked when Line State Change
- */
-static bool usb_device_cb_state_c(usb_cdc_control_signal_t state)
-{
-	if (state.rs232.DTR) {
-		/* Callbacks must be registered after endpoint allocation */
-		cdcdf_acm_register_callback(CDCDF_ACM_CB_READ, (FUNC_PTR)usb_device_cb_bulk_out);
-		cdcdf_acm_register_callback(CDCDF_ACM_CB_WRITE, (FUNC_PTR)usb_device_cb_bulk_in);
-		/* Start Rx */
-		cdcdf_acm_read((uint8_t *)usbd_cdc_buffer, sizeof(usbd_cdc_buffer));
-	}
-
-	/* No error. */
-	return false;
-}
-
-/**
- * \brief CDC ACM Init
- */
-void cdc_device_acm_init(void)
+void usb_dfu_init(void)
 {
 	/* usb stack init */
 	usbdc_init(ctrl_buffer);
 
 	/* usbdc_register_funcion inside */
-	cdcdf_acm_init();
+	dfudf_init();
 
 	usbdc_start(single_desc);
 	usbdc_attach();
@@ -102,13 +67,11 @@ void cdc_device_acm_init(void)
  * - Open a HyperTerminal or other COM tools in PC side.
  * - Send out a character or string and it will echo the content received.
  */
-void cdcd_acm_example(void)
+void usb_dfu(void)
 {
-	while (!cdcdf_acm_is_enabled()) {
-		// wait cdc acm to be installed
+	while (!dfudf_is_enabled()) {
+		// wait DFU to be installed
 	};
-
-	cdcdf_acm_register_callback(CDCDF_ACM_CB_STATE_C, (FUNC_PTR)usb_device_cb_state_c);
 
 	while (1) {
 	}
@@ -117,5 +80,5 @@ void cdcd_acm_example(void)
 void usb_init(void)
 {
 
-	cdc_device_acm_init();
+	usb_dfu_init();
 }
