@@ -34,6 +34,9 @@ struct dfudf_func_data {
 static struct usbdf_driver _dfudf;
 static struct dfudf_func_data _dfudf_funcd;
 
+static enum usb_dfu_state dfu_state = USB_DFU_STATE_DFU_IDLE; /**< current DFU state */
+static enum usb_dfu_status dfu_status = USB_DFU_STATUS_OK; /**< current DFU status */
+
 /**
  * \brief Enable DFU Function
  * \param[in] drv Pointer to USB device function driver
@@ -137,15 +140,55 @@ static int32_t dfudf_req(uint8_t ep, struct usb_req *req, enum usb_ctrl_stage st
 	if (0x01 != ((req->bmRequestType >> 5) & 0x03)) { // class request
 		return ERR_NOT_FOUND;
 	}
+
+	int32_t to_return = ERR_NONE;
+	uint8_t response[6]; // buffer for the response to this request
 	if ((req->wIndex == _dfudf_funcd.func_iface)) {
 		// we don't verify the bmRequestType
 		switch (req->bRequest) {
-		default:
-			return ERR_UNSUPPORTED_OP;
+		case USB_DFU_GETSTATUS: // get status
+			response[0] = dfu_status; // set status
+			response[1] = 100; // set poll timeout (24 bits, in milliseconds) to small value for periodical poll
+			response[2] = 0; // set poll timeout (24 bits, in milliseconds) to small value for periodical poll
+			response[3] = 0; // set poll timeout (24 bits, in milliseconds) to small value for periodical poll
+			response[4] = dfu_state; // set state
+			response[5] = 0; // string not used
+			to_return = usbdc_xfer(ep, response, 6, false); // send back status
+			if (USB_DFU_STATE_DFU_DNLOAD_SYNC == dfu_state) {
+				dfu_state = USB_DFU_STATE_DFU_DNBUSY; // switch to busy state
+			} else if (USB_DFU_STATE_DFU_MANIFEST_SYNC == dfu_state) {
+				dfu_state = USB_DFU_STATE_DFU_MANIFEST; // go to manifest mode
+				dfu_state = USB_DFU_STATE_APP_DETACH;
+			}
+			break;
+		case USB_DFU_CLRSTATUS: // clear status
+			if (USB_DFU_STATE_DFU_ERROR == dfu_state || USB_DFU_STATUS_OK != dfu_status) { // only clear in case there is an error
+				dfu_status = USB_DFU_STATUS_OK; // clear error status
+				dfu_state = USB_DFU_STATE_DFU_IDLE; // put back in idle state
+			}
+			to_return = usbdc_xfer(ep, NULL, 0, true); // send ACK
+			break;
+		case USB_DFU_GETSTATE: // get state
+			response[0] = dfu_state; // return state
+			to_return = usbdc_xfer(ep, response, 1, false); // send back state
+			break;
+		case USB_DFU_ABORT: // abort current operation
+			dfu_state = USB_DFU_STATE_DFU_IDLE; // put back in idle state (nothing else to do)
+			to_return = usbdc_xfer(ep, NULL, 0, true); // send ACK
+			//flash_pointer = (uint32_t)&__application_beginning; // reset download location
+			break;
+		case USB_DFU_DETACH: // detach makes only sense in DFU run-time/application mode
+		case USB_DFU_UPLOAD: // upload firmware from flash not supported
+		case USB_DFU_DNLOAD: // download firmware on flash TODO implement
+		default: // all other DFU class request
+			dfu_state = USB_DFU_STATE_DFU_ERROR; // unknown or unsupported class request
+			to_return = ERR_UNSUPPORTED_OP; // stall control pipe (don't reply to the request)
+			break;
 		}
 	} else {
-		return ERR_NOT_FOUND;
+		to_return = ERR_NOT_FOUND;
 	}
+	return to_return;
 }
 
 /** USB Device DFU Handler Struct */
@@ -165,11 +208,13 @@ int32_t dfudf_init(void)
 
 	usbdc_register_function(&_dfudf);
 	usbdc_register_handler(USBDC_HDL_REQ, &dfudf_req_h);
+
+	// TODO check if firmware is corrupted and set dfuERROR state if it is
 	return ERR_NONE;
 }
 
 /**
- * \brief Deinitialize the USB DFU Function Driver
+ * \brief De-initialize the USB DFU Function Driver
  */
 void dfudf_deinit(void)
 {
