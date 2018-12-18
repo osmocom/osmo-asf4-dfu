@@ -46,33 +46,31 @@ static int32_t dfudf_enable(struct usbdf_driver *drv, struct usbd_descriptors *d
 
 	usb_iface_desc_t ifc_desc;
 	uint8_t *        ifc;
-	uint8_t          i;
 
 	ifc = desc->sod;
-	for (i = 0; i < 2; i++) {
-		if (NULL == ifc) {
-			return ERR_NOT_FOUND;
-		}
-
-		ifc_desc.bInterfaceNumber = ifc[2];
-		ifc_desc.bInterfaceClass  = ifc[5];
-
-		if (USB_DFU_CLASS == ifc_desc.bInterfaceClass) {
-			if (func_data->func_iface == ifc_desc.bInterfaceNumber) { // Initialized
-				return ERR_ALREADY_INITIALIZED;
-			} else if (func_data->func_iface != 0xFF) { // Occupied
-				return ERR_NO_RESOURCE;
-			} else {
-				func_data->func_iface = ifc_desc.bInterfaceNumber;
-			}
-		} else { // Not supported by this function driver
-			return ERR_NOT_FOUND;
-		}
-
-		// there are no endpoint to install since DFU uses only the control endpoint
-
-		ifc = usb_find_desc(usb_desc_next(desc->sod), desc->eod, USB_DT_INTERFACE);
+	if (NULL == ifc) {
+		return ERR_NOT_FOUND;
 	}
+
+	ifc_desc.bInterfaceNumber = ifc[2];
+	ifc_desc.bInterfaceClass  = ifc[5];
+
+	if (USB_DFU_CLASS == ifc_desc.bInterfaceClass) {
+		if (func_data->func_iface == ifc_desc.bInterfaceNumber) { // Initialized
+			return ERR_ALREADY_INITIALIZED;
+		} else if (func_data->func_iface != 0xFF) { // Occupied
+			return ERR_NO_RESOURCE;
+		} else {
+			func_data->func_iface = ifc_desc.bInterfaceNumber;
+		}
+	} else { // Not supported by this function driver
+		return ERR_NOT_FOUND;
+	}
+
+	// there are no endpoint to install since DFU uses only the control endpoint
+
+	ifc = usb_find_desc(usb_desc_next(desc->sod), desc->eod, USB_DT_INTERFACE);
+
 	// Installed
 	_dfudf_funcd.enabled = true;
 	return ERR_NONE;
