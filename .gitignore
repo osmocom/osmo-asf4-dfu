@@ -6,4 +6,5 @@
 *.hex
 *.lss
 *.map
+.gdb_history
 NOTES
