@@ -79,15 +79,15 @@ COMPILER_PACK_SET(1)
 
 //! DFU Functional Descriptor
 typedef struct usb_dfu_func_desc {
-	uint8_t bFunctionLength;
-	uint8_t bDescriptorType;
-	uint8_t bmAttributes;
-	le16_t  wDetachTimeOut;
-	le16_t  wTransferSize;
-	le16_t  bcdDFUVersion;
+	uint8_t bFunctionLength; /**< Size of this descriptor, in bytes (always 9) */
+	uint8_t bDescriptorType; /**< DFU FUNCTIONAL descriptor type (always 0x21) */
+	uint8_t bmAttributes; /**< DFU attributes bit mask */
+	le16_t  wDetachTimeOut; /**< Time, in milliseconds, that the device will wait after receipt of the DFU_DETACH request */
+	le16_t  wTransferSize; /**< Maximum number of bytes that the device can accept per control-write transaction */
+	le16_t  bcdDFUVersion; /**< Numeric expression identifying the version of the DFU Specification release */
 } usb_dfu_func_desc_t;
 
-#define USB_DFU_FUNC_DESC_LEN 0x09
+#define USB_DFU_FUNC_DESC_LEN 9
 #define USB_DFU_FUNC_DESC_TYPE 0x21
 #define USB_DFU_FUNC_DESC_BYTES(bmAttributes, wDetachTimeOut, wTransferSize, bcdDFUVersion) \
 	USB_DFU_FUNC_DESC_LEN, /* bFunctionLength */ \

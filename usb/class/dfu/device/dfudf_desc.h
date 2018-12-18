@@ -84,9 +84,9 @@
 	                     USB_DFU_PROTOCOL_DFU, \
 	                     CONF_USB_DFUD_IINTERFACE), \
 	                     USB_DFU_FUNC_DESC_BYTES(USB_DFU_ATTRIBUTES_CAN_DOWNLOAD | USB_DFU_ATTRIBUTES_WILL_DETACH, \
-	                     	                     200, /* maximum time in milliseconds to detach (and reboot) */ \
-	                     	                     1024, /* maximum transfer size */ \
-	                     	                     0x0110 /*< DFU specification version 1.1 used */ )
+	                     	                     0, /**< detaching makes only sense in run-time mode */ \
+	                     	                     1024, /**< transfer size corresponds to page size for optimal flash writing */ \
+	                     	                     0x0110 /**< DFU specification version 1.1 used */ )
 
 #define DFUD_STR_DESCES \
 	CONF_USB_DFUD_LANGID_DESC \
