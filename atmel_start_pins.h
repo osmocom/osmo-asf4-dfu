@@ -27,6 +27,10 @@
 #define GPIO_PIN_FUNCTION_M 12
 #define GPIO_PIN_FUNCTION_N 13
 
+/** LED pin to indicate system state (pull low to switch on */
+#define LED_SYSTEM GPIO(GPIO_PORTC, 18)
+
+/** USB D+/D- pins */
 #define PA24 GPIO(GPIO_PORTA, 24)
 #define PA25 GPIO(GPIO_PORTA, 25)
 

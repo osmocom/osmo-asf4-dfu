@@ -143,6 +143,11 @@ void system_init(void)
 {
 	init_mcu();
 
+	// configure system LED
+	gpio_set_pin_level(LED_SYSTEM, true); // switch off LED
+	gpio_set_pin_direction(LED_SYSTEM, GPIO_DIRECTION_OUT);
+	gpio_set_pin_function(LED_SYSTEM, GPIO_PIN_FUNCTION_OFF);
+
 	USB_DEVICE_INSTANCE_init();
 	FLASH_0_init();
 }
