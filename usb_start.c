@@ -39,6 +39,9 @@ static struct usbd_descriptors single_desc[]
 #endif
 };
 
+/** USB DFU functional descriptor (with DFU attributes) */
+static const uint8_t usb_dfu_func_desc_bytes[] = {DFUD_IFACE_DESCB};
+static const usb_dfu_func_desc_t* usb_dfu_func_desc = (usb_dfu_func_desc_t*)&usb_dfu_func_desc_bytes;
 /** Ctrl endpoint buffer */
 static uint8_t ctrl_buffer[64];
 

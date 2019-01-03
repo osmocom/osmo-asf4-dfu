@@ -22,8 +22,9 @@
 
 #include "dfudf.h"
 #include "usb_protocol_dfu.h"
+#include "dfudf_desc.h"
 
-/** USB Device DFU Fucntion Specific Data */
+/** USB Device DFU Function Specific Data */
 struct dfudf_func_data {
 	/** DFU Interface information */
 	uint8_t func_iface;
@@ -33,6 +34,10 @@ struct dfudf_func_data {
 
 static struct usbdf_driver _dfudf;
 static struct dfudf_func_data _dfudf_funcd;
+
+/** USB DFU functional descriptor (with DFU attributes) */
+static const uint8_t usb_dfu_func_desc_bytes[] = {DFUD_IFACE_DESCB};
+static const usb_dfu_func_desc_t* usb_dfu_func_desc = (usb_dfu_func_desc_t*)&usb_dfu_func_desc_bytes;
 
 enum usb_dfu_state dfu_state = USB_DFU_STATE_DFU_IDLE;
 enum usb_dfu_status dfu_status = USB_DFU_STATUS_OK;
