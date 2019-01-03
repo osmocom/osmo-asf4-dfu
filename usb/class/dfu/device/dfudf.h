@@ -35,6 +35,24 @@
 #define USBDF_DFU_H_
 
 #include "usbdc.h"
+#include "usb_protocol_dfu.h"
+
+/** Current DFU state */
+extern enum usb_dfu_state dfu_state;
+/**< Current DFU status */
+extern enum usb_dfu_status dfu_status;
+
+/** Downloaded data to be programmed in flash
+ *
+ *  512 is the flash page size of the SAM D5x/E5x
+ */
+extern uint8_t dfu_download_data[512];
+/** Length of downloaded data in bytes */
+extern uint16_t dfu_download_length;
+/** Progress of the already downloaded data in bytes */
+extern size_t dfu_download_progress;
+/** If manifestation (firmware flash and check) is complete */
+extern bool dfu_manifestation_complete;
 
 /**
  * \brief Initialize the USB DFU Function Driver

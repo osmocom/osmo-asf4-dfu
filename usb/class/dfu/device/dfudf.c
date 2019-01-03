@@ -34,8 +34,13 @@ struct dfudf_func_data {
 static struct usbdf_driver _dfudf;
 static struct dfudf_func_data _dfudf_funcd;
 
-static enum usb_dfu_state dfu_state = USB_DFU_STATE_DFU_IDLE; /**< current DFU state */
-static enum usb_dfu_status dfu_status = USB_DFU_STATUS_OK; /**< current DFU status */
+enum usb_dfu_state dfu_state = USB_DFU_STATE_DFU_IDLE;
+enum usb_dfu_status dfu_status = USB_DFU_STATUS_OK;
+
+uint8_t dfu_download_data[512];
+uint16_t dfu_download_length = 0;
+size_t dfu_download_progress = 0;
+bool dfu_manifestation_complete = false;
 
 /**
  * \brief Enable DFU Function
