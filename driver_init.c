@@ -126,9 +126,23 @@ void USB_DEVICE_INSTANCE_init(void)
 	USB_DEVICE_INSTANCE_PORT_init();
 }
 
+struct flash_descriptor FLASH_0;
+
+void FLASH_0_CLOCK_init(void)
+{
+	hri_mclk_set_AHBMASK_NVMCTRL_bit(MCLK);
+}
+
+void FLASH_0_init(void)
+{
+	FLASH_0_CLOCK_init();
+	flash_init(&FLASH_0, NVMCTRL);
+}
+
 void system_init(void)
 {
 	init_mcu();
 
 	USB_DEVICE_INSTANCE_init();
+	FLASH_0_init();
 }
