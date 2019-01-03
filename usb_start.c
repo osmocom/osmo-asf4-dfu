@@ -45,15 +45,20 @@ static const usb_dfu_func_desc_t* usb_dfu_func_desc = (usb_dfu_func_desc_t*)&usb
 /** Ctrl endpoint buffer */
 static uint8_t ctrl_buffer[64];
 
+/** Application address in the flash
+ (
+ *  It comes after the bootloader.
+ *  The NVMCTRL allows to reserve space at the beginning of the flash for the bootloader, but only in multiples of 8192 bytes.
+ *  The binary just with the USB stack already uses 8 kB, we reserve 16 kB for the bootloader (giving use a bit of margin for future fixes).
+ */
+#define APPLICATION_ADDR (8192*2)
+
 /**
  * \brief USB DFU Init
  */
 void usb_dfu_init(void)
 {
-	/* usb stack init */
 	usbdc_init(ctrl_buffer);
-
-	/* usbdc_register_funcion inside */
 	dfudf_init();
 
 	usbdc_start(single_desc);
@@ -61,27 +66,74 @@ void usb_dfu_init(void)
 }
 
 /**
- * Example of using CDC ACM Function.
- * \note
- * In this example, we will use a PC as a USB host:
- * - Connect the DEBUG USB on XPLAINED board to PC for program download.
- * - Connect the TARGET USB on XPLAINED board to PC for running program.
- * The application will behave as a virtual COM.
- * - Open a HyperTerminal or other COM tools in PC side.
- * - Send out a character or string and it will echo the content received.
+ * \brief reset device
+ */
+static void usb_dfu_reset(const enum usb_event ev, const uint32_t param)
+{
+	(void)param; // not used
+	switch (ev) {
+	case USB_EV_RESET:
+		usbdc_detach(); // make sure we are detached
+		NVIC_SystemReset(); // initiate a system reset
+		break;
+	default:
+		break;
+	}
+	
+}
+
+/**
+ * \brief Enter USB DFU runtime
  */
 void usb_dfu(void)
 {
-	while (!dfudf_is_enabled()) {
-		// wait DFU to be installed
-	};
-
-	while (1) {
+	while (!dfudf_is_enabled()); // wait for DFU to be installed
+	gpio_set_pin_level(LED_SYSTEM, false); // switch LED on to indicate USB DFU stack is ready
+	while (true) { // main DFU infinite loop
+		// run the second part of the USB DFU state machine handling non-USB aspects
+		if (USB_DFU_STATE_DFU_DNLOAD_SYNC == dfu_state || USB_DFU_STATE_DFU_DNBUSY == dfu_state) { // there is some data to be flashed
+			gpio_set_pin_level(LED_SYSTEM, true); // switch LED off to indicate we are flashing
+			if (dfu_download_length > 0) { // there is some data to be flashed
+				int32_t rc = flash_write(&FLASH_0, APPLICATION_ADDR + dfu_download_progress, dfu_download_data, dfu_download_length); // write downloaded data chunk to flash
+				if (ERR_NONE == rc) {
+					dfu_state = USB_DFU_STATE_DFU_DNLOAD_IDLE; // indicate flashing this block has been completed
+				} else { // there has been a programming error
+					dfu_state = USB_DFU_STATE_DFU_ERROR;
+					if (ERR_BAD_ADDRESS == rc) {
+						dfu_status = USB_DFU_STATUS_ERR_ADDRESS;
+					} else if (ERR_DENIED == rc) {
+						dfu_status = USB_DFU_STATUS_ERR_WRITE;
+					} else {
+						dfu_status = USB_DFU_STATUS_ERR_PROG;
+					}
+				}
+			} else { // there was no data to flash
+				// this case should not happen, but it's not a critical error
+				dfu_state = USB_DFU_STATE_DFU_DNLOAD_IDLE; // indicate flashing can continue
+			}
+			gpio_set_pin_level(LED_SYSTEM, false); // switch LED on to indicate USB DFU can resume
+		}
+		if (USB_DFU_STATE_DFU_MANIFEST == dfu_state) { // we can start manifestation (finish flashing)
+			// in theory every DFU files should have a suffix to with a CRC to check the data
+			// in practice most downloaded files are just the raw binary with DFU suffix
+			dfu_manifestation_complete = true; // we completed flashing and all checks
+			if (usb_dfu_func_desc->bmAttributes & USB_DFU_ATTRIBUTES_MANIFEST_TOLERANT) {
+				dfu_state = USB_DFU_STATE_DFU_MANIFEST_SYNC;
+			} else {
+				dfu_state = USB_DFU_STATE_DFU_MANIFEST_WAIT_RESET;
+			}
+		}
+		if (USB_DFU_STATE_DFU_MANIFEST_WAIT_RESET == dfu_state) {
+			if (usb_dfu_func_desc->bmAttributes & USB_DFU_ATTRIBUTES_WILL_DETACH) {
+				usb_dfu_reset(USB_EV_RESET, 0); // immediately reset
+			} else { // wait for USB reset
+				usb_d_register_callback(USB_D_CB_EVENT, (FUNC_PTR)usb_dfu_reset); // register new USB reset event handler
+			}
+		}
 	}
 }
 
 void usb_init(void)
 {
-
 	usb_dfu_init();
 }
