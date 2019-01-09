@@ -82,23 +82,16 @@ void usb_dfu(void)
 	while (!dfudf_is_enabled()); // wait for DFU to be installed
 	gpio_set_pin_level(LED_SYSTEM, false); // switch LED on to indicate USB DFU stack is ready
 
-	uint32_t application_start = hri_nvmctrl_read_STATUS_BOOTPROT_bf(FLASH_0.dev.hw); // read BOOTPROT setting to get the bootloader size
-	ASSERT(application_start <= 15);
-	application_start = (15 - application_start) * 8192; // calculate bootloader size to know where we should write the application firmware
-	while (0 == application_start) { // no space has been reserved for the bootloader
-		// blink the LED to tell the user we don't know where the application starts
-		gpio_set_pin_level(LED_SYSTEM, false);
-		delay_ms(500);
-		gpio_set_pin_level(LED_SYSTEM, true);
-		delay_ms(500);
-	}
+	ASSERT(hri_nvmctrl_read_STATUS_BOOTPROT_bf(FLASH_0.dev.hw) <= 15);
+	uint32_t application_start_address = (15 - hri_nvmctrl_read_STATUS_BOOTPROT_bf(FLASH_0.dev.hw)) * 8192; // calculate bootloader size to know where we should write the application firmware
+	ASSERT(application_start_address > 0);
 
 	while (true) { // main DFU infinite loop
 		// run the second part of the USB DFU state machine handling non-USB aspects
 		if (USB_DFU_STATE_DFU_DNLOAD_SYNC == dfu_state || USB_DFU_STATE_DFU_DNBUSY == dfu_state) { // there is some data to be flashed
 			gpio_set_pin_level(LED_SYSTEM, true); // switch LED off to indicate we are flashing
 			if (dfu_download_length > 0) { // there is some data to be flashed
-				int32_t rc = flash_write(&FLASH_0, application_start + dfu_download_offset, dfu_download_data, dfu_download_length); // write downloaded data chunk to flash
+				int32_t rc = flash_write(&FLASH_0, application_start_address + dfu_download_offset, dfu_download_data, dfu_download_length); // write downloaded data chunk to flash
 				if (ERR_NONE == rc) {
 					dfu_state = USB_DFU_STATE_DFU_DNLOAD_IDLE; // indicate flashing this block has been completed
 				} else { // there has been a programming error
