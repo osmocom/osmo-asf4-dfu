@@ -245,11 +245,9 @@ static int32_t dfudf_out_req(uint8_t ep, struct usb_req *req, enum usb_ctrl_stag
 		} else { // there is data to be flash
 			if (USB_SETUP_STAGE == stage) { // there will be data to be flash
 				to_return = usbdc_xfer(ep, dfu_download_data, req->wLength, false); // send ack to the setup request to get the data
-				//to_return = usbdc_xfer(ep, NULL, 0, false); // send ACK
 			} else { // now there is data to be flashed
 				dfu_download_progress = req->wValue * sizeof(dfu_download_data); // remember which block to flash
-				dfu_download_length = 0;
-				//dfu_download_length = req->wLength; // remember the data size to be flash
+				dfu_download_length = req->wLength; // remember the data size to be flash
 				dfu_state = USB_DFU_STATE_DFU_DNLOAD_SYNC; // go to sync state
 				to_return = usbdc_xfer(ep, NULL, 0, false); // ACK the data
 				// we let the main application flash the data because this can be long and would stall the USB ISR
