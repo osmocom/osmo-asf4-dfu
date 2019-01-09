@@ -45,14 +45,6 @@ static const usb_dfu_func_desc_t* usb_dfu_func_desc = (usb_dfu_func_desc_t*)&usb
 /** Ctrl endpoint buffer */
 static uint8_t ctrl_buffer[64];
 
-/** Application address in the flash
- (
- *  It comes after the bootloader.
- *  The NVMCTRL allows to reserve space at the beginning of the flash for the bootloader, but only in multiples of 8192 bytes.
- *  The binary just with the USB stack already uses 8 kB, we reserve 16 kB for the bootloader (giving use a bit of margin for future fixes).
- */
-#define APPLICATION_ADDR (8192*2)
-
 /**
  * \brief USB DFU Init
  */
@@ -89,12 +81,24 @@ void usb_dfu(void)
 {
 	while (!dfudf_is_enabled()); // wait for DFU to be installed
 	gpio_set_pin_level(LED_SYSTEM, false); // switch LED on to indicate USB DFU stack is ready
+
+	uint32_t application_start = hri_nvmctrl_read_STATUS_BOOTPROT_bf(FLASH_0.dev.hw); // read BOOTPROT setting to get the bootloader size
+	ASSERT(application_start <= 15);
+	application_start = (15 - application_start) * 8192; // calculate bootloader size to know where we should write the application firmware
+	while (0 == application_start) { // no space has been reserved for the bootloader
+		// blink the LED to tell the user we don't know where the application starts
+		gpio_set_pin_level(LED_SYSTEM, false);
+		delay_ms(500);
+		gpio_set_pin_level(LED_SYSTEM, true);
+		delay_ms(500);
+	}
+
 	while (true) { // main DFU infinite loop
 		// run the second part of the USB DFU state machine handling non-USB aspects
 		if (USB_DFU_STATE_DFU_DNLOAD_SYNC == dfu_state || USB_DFU_STATE_DFU_DNBUSY == dfu_state) { // there is some data to be flashed
 			gpio_set_pin_level(LED_SYSTEM, true); // switch LED off to indicate we are flashing
 			if (dfu_download_length > 0) { // there is some data to be flashed
-				int32_t rc = flash_write(&FLASH_0, APPLICATION_ADDR + dfu_download_progress, dfu_download_data, dfu_download_length); // write downloaded data chunk to flash
+				int32_t rc = flash_write(&FLASH_0, application_start + dfu_download_offset, dfu_download_data, dfu_download_length); // write downloaded data chunk to flash
 				if (ERR_NONE == rc) {
 					dfu_state = USB_DFU_STATE_DFU_DNLOAD_IDLE; // indicate flashing this block has been completed
 				} else { // there has been a programming error

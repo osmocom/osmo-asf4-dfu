@@ -44,7 +44,7 @@ enum usb_dfu_status dfu_status = USB_DFU_STATUS_OK;
 
 uint8_t dfu_download_data[512];
 uint16_t dfu_download_length = 0;
-size_t dfu_download_progress = 0;
+size_t dfu_download_offset = 0;
 bool dfu_manifestation_complete = false;
 
 /**
@@ -215,7 +215,7 @@ static int32_t dfudf_out_req(uint8_t ep, struct usb_req *req, enum usb_ctrl_stag
 		to_return = usbdc_xfer(ep, NULL, 0, false); // send ACK
 		break;
 	case USB_DFU_ABORT: // abort current operation
-		dfu_download_progress = 0; // reset download progress
+		dfu_download_offset = 0; // reset download progress
 		dfu_state = USB_DFU_STATE_DFU_IDLE; // put back in idle state (nothing else to do)
 		to_return = usbdc_xfer(ep, NULL, 0, false); // send ACK
 		break;
@@ -246,7 +246,7 @@ static int32_t dfudf_out_req(uint8_t ep, struct usb_req *req, enum usb_ctrl_stag
 			if (USB_SETUP_STAGE == stage) { // there will be data to be flash
 				to_return = usbdc_xfer(ep, dfu_download_data, req->wLength, false); // send ack to the setup request to get the data
 			} else { // now there is data to be flashed
-				dfu_download_progress = req->wValue * sizeof(dfu_download_data); // remember which block to flash
+				dfu_download_offset = req->wValue * sizeof(dfu_download_data); // remember which block to flash
 				dfu_download_length = req->wLength; // remember the data size to be flash
 				dfu_state = USB_DFU_STATE_DFU_DNLOAD_SYNC; // go to sync state
 				to_return = usbdc_xfer(ep, NULL, 0, false); // ACK the data

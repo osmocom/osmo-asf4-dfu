@@ -49,8 +49,8 @@ extern enum usb_dfu_status dfu_status;
 extern uint8_t dfu_download_data[512];
 /** Length of downloaded data in bytes */
 extern uint16_t dfu_download_length;
-/** Progress of the already downloaded data in bytes */
-extern size_t dfu_download_progress;
+/** Offset of where the downloaded data should be flashed in bytes */
+extern size_t dfu_download_offset;
 /** If manifestation (firmware flash and check) is complete */
 extern bool dfu_manifestation_complete;
 
