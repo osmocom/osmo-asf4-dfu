@@ -48,6 +48,8 @@ static bool check_bootloader(void)
  */
 static bool check_force_dfu(void)
 {
+	gpio_set_pin_pull_mode(BUTTON_FORCE_DFU, GPIO_PULL_UP); // pull button high
+	return (0 == gpio_get_pin_level(BUTTON_FORCE_DFU)); // signal is low when button is pressed
 }
 
 /** Check if the application is valid
@@ -87,7 +89,7 @@ int main(void)
 			delay_ms(500);
 		}
 	}
-	if (check_application()) { // application is valid
+	if (!check_force_dfu() && check_application()) { // application is valid
 		start_application(); // start application
 	} else {
 		usb_dfu(); // start DFU bootloader

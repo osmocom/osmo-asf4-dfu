@@ -148,6 +148,11 @@ void system_init(void)
 	gpio_set_pin_direction(LED_SYSTEM, GPIO_DIRECTION_OUT);
 	gpio_set_pin_function(LED_SYSTEM, GPIO_PIN_FUNCTION_OFF);
 
+	// configure force DFU user button
+	gpio_set_pin_direction(BUTTON_FORCE_DFU, GPIO_DIRECTION_IN);
+	gpio_set_pin_pull_mode(BUTTON_FORCE_DFU, GPIO_PULL_UP);
+	gpio_set_pin_function(BUTTON_FORCE_DFU, GPIO_PIN_FUNCTION_OFF);
+
 	USB_DEVICE_INSTANCE_init();
 	FLASH_0_init();
 }
