@@ -23,7 +23,7 @@
 #endif
 // <s> Language IDs
 // <i> Language IDs in c format, split by comma (E.g., 0x0409 ...)
-// <id> usb_dufd_langid
+// <id> usb_dfud_langid
 #ifndef CONF_USB_DFUD_LANGID
 #define CONF_USB_DFUD_LANGID "0x0409"
 #endif
@@ -69,33 +69,33 @@
 // <0x0010=> 16 bytes
 // <0x0020=> 32 bytes
 // <0x0040=> 64 bytes
-// <id> usb_dufd_bmaxpksz0
+// <id> usb_dfud_bmaxpksz0
 #ifndef CONF_USB_DFUD_BMAXPKSZ0
 #define CONF_USB_DFUD_BMAXPKSZ0 0x40
 #endif
 
 // <o> idVendor <0x0000-0xFFFF>
 // <0x1d50=> OpenMoko
-// <id> usb_octsim_idvendor
-#ifndef CONF_USB_OCTSIM_IDVENDOR
-#define CONF_USB_OCTSIM_IDVENDOR 0x1d50
+// <id> usb_dfud_idvendor
+#ifndef CONF_USB_OPENMOKO_IDVENDOR
+#define CONF_USB_OPENMOKO_IDVENDOR 0x1d50
 #endif
 
 // <o> idProduct <0x0000-0xFFFF>
-// <0x6140=> sysmoOCTSIM
-// <id> usb_dufd_idproduct
-#ifndef CONF_USB_OCTSIM_IDPRODUCT
-#define CONF_USB_OCTSIM_IDPRODUCT 0x6140
+// <0x6140=> osmo-ASF4-DFU
+// <id> usb_dfud_idproduct
+#ifndef CONF_USB_OSMOASF4DFU_IDPRODUCT
+#define CONF_USB_OSMOASF4DFU_IDPRODUCT 0x6140
 #endif
 
 // <o> bcdDevice <0x0000-0xFFFF>
-// <id> usb_dufd_bcddevice
+// <id> usb_dfud_bcddevice
 #ifndef CONF_USB_DFUD_BCDDEVICE
 #define CONF_USB_DFUD_BCDDEVICE 0x000
 #endif
 
 // <e> Enable string descriptor of iManufact
-// <id> usb_dufd_imanufact_en
+// <id> usb_dfud_imanufact_en
 #ifndef CONF_USB_DFUD_IMANUFACT_EN
 #define CONF_USB_DFUD_IMANUFACT_EN 1
 #endif
@@ -105,7 +105,7 @@
 #endif
 
 // <s> Unicode string of iManufact
-// <id> usb_dufd_imanufact_str
+// <id> usb_dfud_imanufact_str
 #ifndef CONF_USB_DFUD_IMANUFACT_STR
 #define CONF_USB_DFUD_IMANUFACT_STR "osmocom"
 #endif
@@ -117,7 +117,7 @@
 // </e>
 
 // <e> Enable string descriptor of iProduct
-// <id> usb_dufd_iproduct_en
+// <id> usb_dfud_iproduct_en
 #ifndef CONF_USB_DFUD_IPRODUCT_EN
 #define CONF_USB_DFUD_IPRODUCT_EN 1
 #endif
@@ -128,7 +128,7 @@
 #endif
 
 // <s> Unicode string of iProduct
-// <id> usb_dufd_iproduct_str
+// <id> usb_dfud_iproduct_str
 #ifndef CONF_USB_DFUD_IPRODUCT_STR
 #define CONF_USB_DFUD_IPRODUCT_STR "osmo-ASF4-DFU"
 #endif
@@ -140,7 +140,7 @@
 // </e>
 
 // <e> Enable string descriptor of iSerialNum
-// <id> usb_dufd_iserialnum_en
+// <id> usb_dfud_iserialnum_en
 #ifndef CONF_USB_DFUD_ISERIALNUM_EN
 #define CONF_USB_DFUD_ISERIALNUM_EN 0
 #endif
@@ -152,7 +152,7 @@
 #endif
 
 // <s> Unicode string of iSerialNum
-// <id> usb_dufd_iserialnum_str
+// <id> usb_dfud_iserialnum_str
 #ifndef CONF_USB_DFUD_ISERIALNUM_STR
 #define CONF_USB_DFUD_ISERIALNUM_STR "123456789ABCDEF"
 #endif
@@ -164,7 +164,7 @@
 // </e>
 
 // <o> bNumConfigurations <0x01-0xFF>
-// <id> usb_dufd_bnumconfig
+// <id> usb_dfud_bnumconfig
 #ifndef CONF_USB_DFUD_BNUMCONFIG
 #define CONF_USB_DFUD_BNUMCONFIG 0x1
 #endif
@@ -174,25 +174,25 @@
 // <h> DFU Configuration Descriptor
 
 // <o> wTotalLength <0x01-0xFF>
-// <id> usb_dufd_wtotallength
+// <id> usb_dfud_wtotallength
 #ifndef CONF_USB_DFUD_WTOTALLENGTH
 #define CONF_USB_DFUD_WTOTALLENGTH 27
 #endif
 
 // <o> bNumInterfaces <0x01-0xFF>
-// <id> usb_dufd_bnuminterfaces
+// <id> usb_dfud_bnuminterfaces
 #ifndef CONF_USB_DFUD_BNUMINTERFACES
 #define CONF_USB_DFUD_BNUMINTERFACES 1
 #endif
 
 // <o> bConfigurationValue <0x01-0xFF>
-// <id> usb_dufd_bconfigval
+// <id> usb_dfud_bconfigval
 #ifndef CONF_USB_DFUD_BCONFIGVAL
 #define CONF_USB_DFUD_BCONFIGVAL 0x1
 #endif
 
 // <e> Enable string descriptor of iConfig
-// <id> usb_dufd_iconfig_en
+// <id> usb_dfud_iconfig_en
 #ifndef CONF_USB_DFUD_ICONFIG_EN
 #define CONF_USB_DFUD_ICONFIG_EN 0
 #endif
@@ -205,7 +205,7 @@
 #endif
 
 // <s> Unicode string of iConfig
-// <id> usb_dufd_iconfig_str
+// <id> usb_dfud_iconfig_str
 #ifndef CONF_USB_DFUD_ICONFIG_STR
 #define CONF_USB_DFUD_ICONFIG_STR ""
 #endif
@@ -221,13 +221,13 @@
 // <0xA0=> Bus power supply, support for remote wakeup
 // <0xC0=> Self powered, not support for remote wakeup
 // <0xE0=> Self powered, support for remote wakeup
-// <id> usb_dufd_bmattri
+// <id> usb_dfud_bmattri
 #ifndef CONF_USB_DFUD_BMATTRI
 #define CONF_USB_DFUD_BMATTRI 0x80
 #endif
 
 // <o> bMaxPower <0x00-0xFF>
-// <id> usb_dufd_bmaxpower
+// <id> usb_dfud_bmaxpower
 #ifndef CONF_USB_DFUD_BMAXPOWER
 #define CONF_USB_DFUD_BMAXPOWER 0x32
 #endif
@@ -236,25 +236,25 @@
 // <h> DFU Interface Descriptor
 
 // <o> bInterfaceNumber <0x00-0xFF>
-// <id> usb_dufd_bifcnum
+// <id> usb_dfud_bifcnum
 #ifndef CONF_USB_DFUD_BIFCNUM
 #define CONF_USB_DFUD_BIFCNUM 0x0
 #endif
 
 // <o> bAlternateSetting <0x00-0xFF>
-// <id> usb_dufd_baltset
+// <id> usb_dfud_baltset
 #ifndef CONF_USB_DFUD_BALTSET
 #define CONF_USB_DFUD_BALTSET 0x0
 #endif
 
 // <o> bNumEndpoints <0x00-0xFF>
-// <id> usb_dufd_bnumep
+// <id> usb_dfud_bnumep
 #ifndef CONF_USB_DFUD_BNUMEP
 #define CONF_USB_DFUD_BNUMEP 0x0
 #endif
 
 // <e> Enable string descriptor of iInterface
-// <id> usb_dufd_iinterface_en
+// <id> usb_dfud_iinterface_en
 #ifndef CONF_USB_DFUD_IINTERFACE_EN
 #define CONF_USB_DFUD_IINTERFACE_EN 1
 #endif
@@ -267,7 +267,7 @@
 #endif
 
 // <s> Unicode string of iInterface
-// <id> usb_dufd_iinterface_str
+// <id> usb_dfud_iinterface_str
 #ifndef CONF_USB_DFUD_IINTERFAGE_STR
 #define CONF_USB_DFUD_IINTERFACE_STR "SAM D5x/E5x DFU bootloader (DFU mode)"
 #endif

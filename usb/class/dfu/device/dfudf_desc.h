@@ -44,8 +44,8 @@
 	                   CONF_USB_DFUD_BDEVICESUBCLASS, \
 	                   CONF_USB_DFUD_BDEVICEPROTOCOL, \
 	                   CONF_USB_DFUD_BMAXPKSZ0, \
-	                   CONF_USB_OCTSIM_IDVENDOR, \
-	                   CONF_USB_OCTSIM_IDPRODUCT, \
+	                   CONF_USB_OPENMOKO_IDVENDOR, \
+	                   CONF_USB_OSMOASF4DFU_IDPRODUCT, \
 	                   CONF_USB_DFUD_BCDDEVICE, \
 	                   CONF_USB_DFUD_IMANUFACT, \
 	                   CONF_USB_DFUD_IPRODUCT, \
