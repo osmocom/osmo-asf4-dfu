@@ -27,11 +27,11 @@
 #define GPIO_PIN_FUNCTION_M 12
 #define GPIO_PIN_FUNCTION_N 13
 
-/** LED pin to indicate system state (pull low to switch on) */
-#define LED_SYSTEM GPIO(GPIO_PORTC, 18)
+/** LED pin to indicate system state (pull high to switch on) */
+#define LED_SYSTEM GPIO(GPIO_PORTC, 26)
 
 /** User button to force DFu bootloader (connected to ground when pressed) */
-#define BUTTON_FORCE_DFU GPIO(GPIO_PORTB, 31)
+#define BUTTON_FORCE_DFU GPIO(GPIO_PORTC, 14)
 
 /** USB D+/D- pins */
 #define PA24 GPIO(GPIO_PORTA, 24)
