@@ -139,18 +139,38 @@ void FLASH_0_init(void)
 	flash_init(&FLASH_0, NVMCTRL);
 }
 
+void LED_SYSTEM_on(void)
+{
+#if defined(SYSMOOCTSIM)
+	gpio_set_pin_level(LED_SYSTEM, true);
+#else
+	gpio_set_pin_level(LED_SYSTEM, false);
+#endif
+}
+
+void LED_SYSTEM_off(void)
+{
+#if defined(SYSMOOCTSIM)
+	gpio_set_pin_level(LED_SYSTEM, false);
+#else
+	gpio_set_pin_level(LED_SYSTEM, true);
+#endif
+}
+
 void system_init(void)
 {
 	init_mcu();
 
 	// configure system LED
-	gpio_set_pin_level(LED_SYSTEM, true); // switch off LED
+	LED_SYSTEM_off();
 	gpio_set_pin_direction(LED_SYSTEM, GPIO_DIRECTION_OUT);
 	gpio_set_pin_function(LED_SYSTEM, GPIO_PIN_FUNCTION_OFF);
 
 	// configure force DFU user button
 	gpio_set_pin_direction(BUTTON_FORCE_DFU, GPIO_DIRECTION_IN);
-	gpio_set_pin_pull_mode(BUTTON_FORCE_DFU, GPIO_PULL_UP);
+#if !defined(SYSMOOCTSIM)
+	gpio_set_pin_pull_mode(BUTTON_FORCE_DFU, GPIO_PULL_UP); // use internal pull-up resistor
+#endif
 	gpio_set_pin_function(BUTTON_FORCE_DFU, GPIO_PIN_FUNCTION_OFF);
 
 	USB_DEVICE_INSTANCE_init();

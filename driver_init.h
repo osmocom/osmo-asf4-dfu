@@ -34,6 +34,15 @@ void FLASH_0_init(void);
 void FLASH_0_CLOCK_init(void);
 
 /**
+ * \brief Switch system LED on
+ */
+void LED_SYSTEM_on(void);
+/**
+ * \brief Switch system LED off
+ */
+void LED_SYSTEM_off(void);
+
+/**
  * \brief Perform system initialization, initialize pins and clocks for
  * peripherals
  */

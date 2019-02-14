@@ -85,7 +85,11 @@
 // <0x6140=> osmo-ASF4-DFU
 // <id> usb_dfud_idproduct
 #ifndef CONF_USB_OSMOASF4DFU_IDPRODUCT
+#if defined(SYSMOOCTSIM)
+#define CONF_USB_OSMOASF4DFU_IDPRODUCT 0x6141
+#else
 #define CONF_USB_OSMOASF4DFU_IDPRODUCT 0x6140
+#endif
 #endif
 
 // <o> bcdDevice <0x0000-0xFFFF>
@@ -107,11 +111,19 @@
 // <s> Unicode string of iManufact
 // <id> usb_dfud_imanufact_str
 #ifndef CONF_USB_DFUD_IMANUFACT_STR
+#if defined(SYSMOOCTSIM)
+#define CONF_USB_DFUD_IMANUFACT_STR "sysmocom"
+#else
 #define CONF_USB_DFUD_IMANUFACT_STR "osmocom"
+#endif
 #endif
 
 #ifndef CONF_USB_DFUD_IMANUFACT_STR_DESC
+#if defined(SYSMOOCTSIM)
+#define CONF_USB_DFUD_IMANUFACT_STR_DESC 18, 0x03, 's', 0x00, 'y', 0x00, 's', 0x00, 'm', 0x00, 'o', 0x00, 'c', 0x00, 'o', 0x00, 'm', 0x00,
+#else
 #define CONF_USB_DFUD_IMANUFACT_STR_DESC 16, 0x03, 'o', 0x00, 's', 0x00, 'm', 0x00, 'o', 0x00, 'c', 0x00, 'o', 0x00, 'm', 0x00,
+#endif
 #endif
 
 // </e>
@@ -130,11 +142,19 @@
 // <s> Unicode string of iProduct
 // <id> usb_dfud_iproduct_str
 #ifndef CONF_USB_DFUD_IPRODUCT_STR
+#if defined(SYSMOOCTSIM)
+#define CONF_USB_DFUD_IPRODUCT_STR "sysmoOCTSIM (osmo-ASF4-DFU)"
+#else
 #define CONF_USB_DFUD_IPRODUCT_STR "osmo-ASF4-DFU"
+#endif
 #endif
 
 #ifndef CONF_USB_DFUD_IPRODUCT_STR_DESC
+#if defined(SYSMOOCTSIM)
+#define CONF_USB_DFUD_IPRODUCT_STR_DESC 56, 0x03, 's', 0x00, 'y', 0x00, 's', 0x00, 'm', 0x00, 'o', 0x00, 'O', 0x00, 'C', 0x00, 'T', 0x00, 'S', 0x00, 'I', 0x00, 'M', 0x00, ' ', 0x00, '(', 0x00, 'o', 0x00, 's', 0x00, 'm', 0x00, 'o', 0x00, '-', 0x00, 'A', 0x00, 'S', 0x00, 'F', 0x00, '4', 0x00, '-', 0x00, 'D', 0x00, 'F', 0x00, 'U', 0x00, ')', 0x00,
+#else
 #define CONF_USB_DFUD_IPRODUCT_STR_DESC 28, 0x03, 'o', 0x00, 's', 0x00, 'm', 0x00, 'o', 0x00, '-', 0x00, 'A', 0x00, 'S', 0x00, 'F', 0x00, '4', 0x00, '-', 0x00, 'D', 0x00, 'F', 0x00, 'U', 0x00,
+#endif
 #endif
 
 // </e>

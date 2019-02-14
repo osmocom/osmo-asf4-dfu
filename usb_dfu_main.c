@@ -48,7 +48,6 @@ static bool check_bootloader(void)
  */
 static bool check_force_dfu(void)
 {
-	gpio_set_pin_pull_mode(BUTTON_FORCE_DFU, GPIO_PULL_UP); // pull button high
 	return (0 == gpio_get_pin_level(BUTTON_FORCE_DFU)); // signal is low when button is pressed
 }
 

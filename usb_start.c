@@ -80,7 +80,7 @@ static void usb_dfu_reset(const enum usb_event ev, const uint32_t param)
 void usb_dfu(void)
 {
 	while (!dfudf_is_enabled()); // wait for DFU to be installed
-	gpio_set_pin_level(LED_SYSTEM, false); // switch LED on to indicate USB DFU stack is ready
+	LED_SYSTEM_on(); // switch LED on to indicate USB DFU stack is ready
 
 	ASSERT(hri_nvmctrl_read_STATUS_BOOTPROT_bf(FLASH_0.dev.hw) <= 15);
 	uint32_t application_start_address = (15 - hri_nvmctrl_read_STATUS_BOOTPROT_bf(FLASH_0.dev.hw)) * 8192; // calculate bootloader size to know where we should write the application firmware
@@ -89,7 +89,7 @@ void usb_dfu(void)
 	while (true) { // main DFU infinite loop
 		// run the second part of the USB DFU state machine handling non-USB aspects
 		if (USB_DFU_STATE_DFU_DNLOAD_SYNC == dfu_state || USB_DFU_STATE_DFU_DNBUSY == dfu_state) { // there is some data to be flashed
-			gpio_set_pin_level(LED_SYSTEM, true); // switch LED off to indicate we are flashing
+			LED_SYSTEM_off(); // switch LED off to indicate we are flashing
 			if (dfu_download_length > 0) { // there is some data to be flashed
 				int32_t rc = flash_write(&FLASH_0, application_start_address + dfu_download_offset, dfu_download_data, dfu_download_length); // write downloaded data chunk to flash
 				if (ERR_NONE == rc) {
@@ -108,7 +108,7 @@ void usb_dfu(void)
 				// this case should not happen, but it's not a critical error
 				dfu_state = USB_DFU_STATE_DFU_DNLOAD_IDLE; // indicate flashing can continue
 			}
-			gpio_set_pin_level(LED_SYSTEM, false); // switch LED on to indicate USB DFU can resume
+			LED_SYSTEM_on(); // switch LED on to indicate USB DFU can resume
 		}
 		if (USB_DFU_STATE_DFU_MANIFEST == dfu_state) { // we can start manifestation (finish flashing)
 			// in theory every DFU files should have a suffix to with a CRC to check the data
