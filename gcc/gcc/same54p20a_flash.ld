@@ -36,7 +36,8 @@ SEARCH_DIR(.)
 MEMORY
 {
   rom      (rx)  : ORIGIN = 0x00000000, LENGTH = 0x00100000
-  ram      (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00040000
+  /* The first word of the RAM is used for the DFU magic */
+  ram      (rwx) : ORIGIN = 0x20000000 + 4, LENGTH = 0x00040000 - 4
   bkupram  (rwx) : ORIGIN = 0x47000000, LENGTH = 0x00002000
   qspi     (rwx) : ORIGIN = 0x04000000, LENGTH = 0x01000000
 }
@@ -47,6 +48,12 @@ STACK_SIZE = DEFINED(STACK_SIZE) ? STACK_SIZE : DEFINED(__stack_size__) ? __stac
 /* Section Definitions */
 SECTIONS
 {
+    /* Location of the DFU magic. The application must set the magic value "DFU!" (e.g. 0x44465521) at this address to force the DFU bootloader to start (e.g. to perform a DFU detach) */
+    .dfu_magic 0x20000000 :
+    {
+        KEEP(*(.dfu_magic)) ;
+    }
+
     .text :
     {
         . = ALIGN(4);

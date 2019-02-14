@@ -28,10 +28,16 @@ This implementation support the following USB DFU capabilities:
 
 Set the corresponding attributes in the 'DFUD_IFACE_DESCB' macro definition in the 'usb/class/dfu/device/dfudf_desc.h' file.
 
+To force the DFU bootloader to start there are several possibilities:
+
+* if the application following the bootloader is invalid (e.g. MSP is not in RAM)
+* if a button is pressed (the button defined in *BUTTON_FORCE_DFU*)
+* if the magic value "DFU!" (e.g. 0x44465521) is set at the start of the RAM (e.g. by the main application when performing a USB detach) 
+
 Compiling
 =========
 
-Use the 'Makefile' script to compile the source code using the ARM none EABI GCC cross-cimpilig toolchain:
+Use the 'Makefile' script to compile the source code using the ARM none EABI GCC cross-compiling toolchain:
 ```
 cd gcc
 make

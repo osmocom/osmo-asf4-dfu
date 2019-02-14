@@ -27,6 +27,9 @@
  */
 static uint32_t* application_start_address;
 
+/** Location of the DFU magic value to force starting DFU */
+static uint32_t dfu_magic __attribute__ ((section (".dfu_magic"))) __attribute__ ((__used__));
+
 /** Check if the bootloader is valid
  *  \return true if the bootloader is valid and can be run
  *  \remark initializes application_start_address
@@ -48,7 +51,14 @@ static bool check_bootloader(void)
  */
 static bool check_force_dfu(void)
 {
-	return (0 == gpio_get_pin_level(BUTTON_FORCE_DFU)); // signal is low when button is pressed
+	if (0x44465521 == dfu_magic) { // check for the magic value which can be set by the main application
+		dfu_magic = 0; // erase value so we don't stay in the DFU bootloader upon reset
+		return true;
+	}
+	if (0 == gpio_get_pin_level(BUTTON_FORCE_DFU)) { // signal is low when button is pressed
+		return true;
+	}
+	return false;
 }
 
 /** Check if the application is valid
