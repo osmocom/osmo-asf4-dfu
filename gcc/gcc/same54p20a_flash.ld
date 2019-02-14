@@ -48,12 +48,6 @@ STACK_SIZE = DEFINED(STACK_SIZE) ? STACK_SIZE : DEFINED(__stack_size__) ? __stac
 /* Section Definitions */
 SECTIONS
 {
-    /* Location of the DFU magic. The application must set the magic value "DFU!" (e.g. 0x44465521) at this address to force the DFU bootloader to start (e.g. to perform a DFU detach) */
-    .dfu_magic 0x20000000 :
-    {
-        KEEP(*(.dfu_magic)) ;
-    }
-
     .text :
     {
         . = ALIGN(4);
