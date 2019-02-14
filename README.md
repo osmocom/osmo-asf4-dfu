@@ -40,7 +40,7 @@ make
 The board name can be set in 'gcc/Makefile' *BOARD* variable, or provided while compiling (e.g. `make BOARD=SAME54_XPLAINED_PRO`).
 *SAME54_XPLAINED_PRO* is the default value.
 
-The resulting firmware binary is `AtmelStart.bin`.
+The resulting firmware binary is `bootloader.bin`.
 
 Flashing
 ========
@@ -60,7 +60,7 @@ To flash the bootloader using the [edbg tool](https://github.com/ataradov/edbg) 
 To flash the USB DFU bootloader, perform the following actions:
 * remove reserved bootloader space so we can erase it: `edbg --target atmel_cm4v2 --fuse wv,29:26,15`
 * erase the whole flash: `edbg --target atmel_cm4v2 --fuse v,29:26,15 --erase`
-* program the bootloader: `edbg --target atmel_cm4v2 --fuse v,29:26,15 --program --verify --file AtmelStart.bin`
+* program the bootloader: `edbg --target atmel_cm4v2 --fuse v,29:26,15 --program --verify --file bootloader.bin`
 * reserve bootloader space: `edbg --target atmel_cm4v2 --fuse wv,29:26,13`
 
 SWJ
@@ -76,5 +76,5 @@ You need to perform the following actions:
 
 Using OpenOCD (with the [SAM E54 patch](http://openocd.zylin.com/#/c/4272/)) and a ST-LINK/V2 SWD adapter, run the following command:
 
-`openocd --file interface/stlink.cfg --command "transport select hla_swd" --command "set CHIPNAME same54" --command "set CPUTAPID 0x2ba01477" --file target/atsame5x.cfg --command "init" --command "reset halt" --command "atsame5 bootloader 0" --command "flash erase_sector 0 0 last" --command "reset halt" --command "program ./AtmelStart.bin" --command "atsame5 bootloader 16384"  --command "reset run" --command "shutdown"`
+`openocd --file interface/stlink.cfg --command "transport select hla_swd" --command "set CHIPNAME same54" --command "set CPUTAPID 0x2ba01477" --file target/atsame5x.cfg --command "init" --command "reset halt" --command "atsame5 bootloader 0" --command "flash erase_sector 0 0 last" --command "reset halt" --command "program ./bootloader.bin" --command "atsame5 bootloader 16384"  --command "reset run" --command "shutdown"`
 

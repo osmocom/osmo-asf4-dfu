@@ -167,7 +167,7 @@ DEPS_AS_ARGS +=  \
 "gcc/system_same54.d" \
 "atmel_start.d"
 
-OUTPUT_FILE_NAME :=AtmelStart
+OUTPUT_FILE_NAME := bootloader
 QUOTE := "
 OUTPUT_FILE_PATH +=$(OUTPUT_FILE_NAME).elf
 OUTPUT_FILE_PATH_AS_ARGS +=$(OUTPUT_FILE_NAME).elf
