@@ -306,7 +306,6 @@ int32_t dfudf_init(void)
 	usbdc_register_function(&_dfudf);
 	usbdc_register_handler(USBDC_HDL_REQ, &dfudf_req_h);
 
-	// TODO check if firmware is corrupted and set dfuERROR state if it is
 	return ERR_NONE;
 }
 

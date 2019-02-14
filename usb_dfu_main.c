@@ -101,6 +101,9 @@ int main(void)
 	if (!check_force_dfu() && check_application()) { // application is valid
 		start_application(); // start application
 	} else {
+		if (!check_application()) { // if the application is corrupted the start DFU start should be dfuERROR
+			dfu_state = USB_DFU_STATE_DFU_ERROR;
+		}
 		usb_dfu(); // start DFU bootloader
 	}
 }
