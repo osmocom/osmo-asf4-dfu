@@ -73,7 +73,7 @@ static bool check_application(void)
 	 * if the SP is not in this range (e.g. flash has been erased) there is no valid application
 	 * the second entry in the vector table is the reset address, corresponding to the application start
 	 */
-	return (0x20000000 == ((*application_start_address) & 0xFFF80000));
+	return (HSRAM_ADDR == ((*application_start_address) & 0xFFF80000));
 }
 
 /** Start the application
