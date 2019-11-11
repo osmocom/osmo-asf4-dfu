@@ -46,7 +46,7 @@ make
 The board name can be set in 'gcc/Makefile' *BOARD* variable, or provided while compiling (e.g. `make BOARD=SAME54_XPLAINED_PRO`).
 *SAME54_XPLAINED_PRO* is the default value.
 
-The resulting firmware binary is `bootloader.bin`.
+The resulting firmware binary is `bootloader-$(BOARD)-$(GIT_VERSION).bin`.
 
 Flashing
 ========
@@ -66,7 +66,7 @@ To flash the bootloader using the [edbg tool](https://github.com/ataradov/edbg) 
 To flash the USB DFU bootloader, perform the following actions:
 * remove reserved bootloader space so we can erase it: `edbg --target atmel_cm4v2 --fuse wv,29:26,15`
 * erase the whole flash: `edbg --target atmel_cm4v2 --fuse v,29:26,15 --erase`
-* program the bootloader: `edbg --target atmel_cm4v2 --fuse v,29:26,15 --program --verify --file bootloader.bin`
+* program the bootloader: `edbg --target atmel_cm4v2 --fuse v,29:26,15 --program --verify --file bootloader-BOARD-XXXX.bin`
 * reserve bootloader space: `edbg --target atmel_cm4v2 --fuse wv,29:26,13`
 
 SWJ

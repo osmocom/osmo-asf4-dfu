@@ -169,7 +169,8 @@ DEPS_AS_ARGS +=  \
 "gcc/system_same54.d" \
 "atmel_start.d"
 
-OUTPUT_FILE_NAME := bootloader-$(GIT_VERSION)
+BOARD_LC := $(shell echo $(BOARD) | tr A-Z a-z)
+OUTPUT_FILE_NAME := bootloader-$(BOARD_LC)-$(GIT_VERSION)
 QUOTE := "
 OUTPUT_FILE_PATH +=$(OUTPUT_FILE_NAME).elf
 OUTPUT_FILE_PATH_AS_ARGS +=$(OUTPUT_FILE_NAME).elf
