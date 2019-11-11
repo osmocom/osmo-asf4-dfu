@@ -180,7 +180,7 @@ vpath %.s ../
 vpath %.S ../
 
 # All Target
-all: $(SUB_DIRS) $(OUTPUT_FILE_PATH)
+all: $(SUB_DIRS) $(OUTPUT_FILE_PATH) symlink
 
 # Linker target
 
@@ -203,7 +203,10 @@ $(OUTPUT_FILE_PATH): $(OBJS)
 	"arm-none-eabi-objdump" -h -S "$(OUTPUT_FILE_NAME).elf" > "$(OUTPUT_FILE_NAME).lss"
 	"arm-none-eabi-size" "$(OUTPUT_FILE_NAME).elf"
 
-	
+.PHONY: symlink
+symlink: $(OUTPUT_FILE_PATH)
+	ln -sf $(OUTPUT_FILE_NAME).bin bootloader-$(BOARD_LC).bin
+	ln -sf $(OUTPUT_FILE_NAME).elf bootloader-$(BOARD_LC).elf
 
 # Compiler targets
 
@@ -253,4 +256,4 @@ clean:
 	rm -f $(DEPS_AS_ARGS)
 	rm -f $(OUTPUT_FILE_NAME).a $(OUTPUT_FILE_NAME).hex $(OUTPUT_FILE_NAME).bin \
         $(OUTPUT_FILE_NAME).lss $(OUTPUT_FILE_NAME).eep $(OUTPUT_FILE_NAME).map \
-        $(OUTPUT_FILE_NAME).srec
+        $(OUTPUT_FILE_NAME).srec bootloader-$(BOARD_LC).bin bootloader-$(BOARD_LC).elf
