@@ -23,7 +23,10 @@ verify_value_string_arrays_are_terminated.py $(find . -name "*.[hc]")
 
 cd gcc
 $MAKE mrproper
+# build for EVK
 $MAKE $PARALLEL_MAKE
+$MAKE clean
+# build for sysmoOCTSIM
 $MAKE $PARALLEL_MAKE BOARD=SYSMOOCTSIM
 
 if [ "x$publish" = "x--publish" ]; then
