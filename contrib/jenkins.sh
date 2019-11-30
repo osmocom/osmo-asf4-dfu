@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if ! [ -x "$(command -v osmo-deps.sh)" ]; then
 	echo "Error: We need to have scripts/osmo-deps.sh from http://git.osmocom.org/osmo-ci/ in PATH !"
