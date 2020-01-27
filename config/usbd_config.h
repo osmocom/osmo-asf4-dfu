@@ -163,7 +163,7 @@
 // <e> Enable string descriptor of iSerialNum
 // <id> usb_dfud_iserialnum_en
 #ifndef CONF_USB_DFUD_ISERIALNUM_EN
-#define CONF_USB_DFUD_ISERIALNUM_EN 0
+#define CONF_USB_DFUD_ISERIALNUM_EN 1
 #endif
 
 #ifndef CONF_USB_DFUD_ISERIALNUM
@@ -175,11 +175,11 @@
 // <s> Unicode string of iSerialNum
 // <id> usb_dfud_iserialnum_str
 #ifndef CONF_USB_DFUD_ISERIALNUM_STR
-#define CONF_USB_DFUD_ISERIALNUM_STR "123456789ABCDEF"
+#define CONF_USB_DFUD_ISERIALNUM_STR "dummy"
 #endif
 
 #ifndef CONF_USB_DFUD_ISERIALNUM_STR_DESC
-#define CONF_USB_DFUD_ISERIALNUM_STR_DESC 
+#define CONF_USB_DFUD_ISERIALNUM_STR_DESC 12, 0x03, 'd', 0x00, 'u', 0x00, 'm', 0x00, 'm', 0x00, 'y', 0x00,
 #endif
 
 // </e>

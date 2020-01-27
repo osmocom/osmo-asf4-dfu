@@ -19,6 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <errno.h>
 #include "atmel_start.h"
 #include "atmel_start_pins.h"
 
@@ -85,10 +86,63 @@ static void start_application(void)
 	SCB->VTOR = ((uint32_t) application_start_address & SCB_VTOR_TBLOFF_Msk); // re-base the vector table base address
 	asm("bx %0"::"r"(*(application_start_address + 1))); // jump to application Reset Handler in the application */
 }
+#if defined(SYSMOOCTSIM)
+/* Section 9.6 of SAMD5x/E5x Family Data Sheet */
+static int get_chip_unique_serial(uint8_t *out, size_t len)
+{
+	uint32_t *out32 = (uint32_t *)out;
+	if (len < 16)
+		return -EINVAL;
+
+	out32[0] = *(uint32_t *)0x008061fc;
+	out32[1] = *(uint32_t *)0x00806010;
+	out32[2] = *(uint32_t *)0x00806014;
+	out32[3] = *(uint32_t *)0x00806018;
+
+	return 0;
+}
+
+/* same as get_chip_unique_serial but in hex-string format */
+static int get_chip_unique_serial_str(char *out, size_t len)
+{
+	uint8_t buf[16];
+	int rc;
+
+	if (len < 16*2 + 1)
+		return -EINVAL;
+
+	rc = get_chip_unique_serial(buf, sizeof(buf));
+	if (rc < 0)
+		return rc;
+	for (int i = 0; i < sizeof(buf); i++)
+		sprintf(&out[i*2], "%02x", buf[i]);
+	return 0;
+}
+
+static int str_to_usb_desc(char* in, uint8_t in_sz, uint8_t* out, uint8_t out_sz){
+	if (2+in_sz*2 < out_sz)
+		return -1;
+
+	memset(out, 0, out_sz);
+	out[0] = out_sz;
+	out[1] = 0x3;
+	for (int i= 2; i < out_sz; i+=2)
+		out[i] = in[(i >> 1) - 1];
+	return 0;
+}
+
+char sernr_buf[16*2+1];
+//unicode for descriptor
+uint8_t sernr_buf_descr[1+1+16*2*2];
+#endif
 
 int main(void)
 {
 	atmel_start_init(); // initialise system
+#if defined(SYSMOOCTSIM)
+	get_chip_unique_serial_str(sernr_buf, sizeof(sernr_buf));
+	str_to_usb_desc(sernr_buf, sizeof(sernr_buf), sernr_buf_descr, sizeof(sernr_buf_descr));
+#endif
 	if (!check_bootloader()) { // check bootloader
 		// blink the LED to tell the user we don't know where the application starts
 		while (true) {
