@@ -27,6 +27,7 @@
  *
  */
 
+INCLUDE blsize.ld
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
@@ -35,9 +36,9 @@ SEARCH_DIR(.)
 /* Memory Spaces Definitions */
 MEMORY
 {
-  rom      (rx)  : ORIGIN = 0x00000000, LENGTH = 0x00100000
+  rom      (rx)  : ORIGIN = 0x00000000, LENGTH = BL_SIZE_BYTE
   /* The first word of the RAM is used for the DFU magic */
-  ram      (rwx) : ORIGIN = 0x20000000 + 4, LENGTH = 0x00040000 - 4
+  ram      (rwx) : ORIGIN = 0x20000000 + 4, LENGTH = 0x00030000 - 4
   bkupram  (rwx) : ORIGIN = 0x47000000, LENGTH = 0x00002000
   qspi     (rwx) : ORIGIN = 0x04000000, LENGTH = 0x01000000
 }

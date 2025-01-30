@@ -1,7 +1,7 @@
 /**
  * \file
  *
- * \brief Linker script for running in internal SRAM on the SAME54P20A
+ * \brief Linker script for running in internal FLASH on the SAME54P20A
  *
  * Copyright (c) 2018 Microchip Technology Inc.
  *
@@ -14,9 +14,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the Licence at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,6 +27,7 @@
  *
  */
 
+INCLUDE blsize.ld
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
@@ -35,7 +36,9 @@ SEARCH_DIR(.)
 /* Memory Spaces Definitions */
 MEMORY
 {
-  ram      (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00030000
+  rom      (rx)  : ORIGIN = 0x00000000 + BL_SIZE_BYTE, LENGTH = 0x00080000 - BL_SIZE_BYTE
+  /* The first word of the RAM is used for the DFU magic */
+  ram      (rwx) : ORIGIN = 0x20000000 + 4, LENGTH = 0x00030000 - 4
   bkupram  (rwx) : ORIGIN = 0x47000000, LENGTH = 0x00002000
   qspi     (rwx) : ORIGIN = 0x04000000, LENGTH = 0x01000000
 }
@@ -93,15 +96,23 @@ SECTIONS
 
         . = ALIGN(4);
         _efixed = .;            /* End of text section */
-    } > ram
+    } > rom
 
     /* .ARM.exidx is sorted, so has to go in its own output section.  */
     PROVIDE_HIDDEN (__exidx_start = .);
     .ARM.exidx :
     {
       *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } > ram
+    } > rom
     PROVIDE_HIDDEN (__exidx_end = .);
+
+    .blupdate :
+    {
+        . = ALIGN(4);
+        _blupdate_start = .;
+        KEEP(*(.fwupdate .fwupdate.*));
+        _blupdate_end = .;
+    } > rom
 
     . = ALIGN(4);
     _etext = .;
