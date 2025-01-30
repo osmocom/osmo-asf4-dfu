@@ -35,6 +35,7 @@
 #include <hpl_init.h>
 #include <hpl_oscctrl_config.h>
 #include <hpl_gclk_config.h>
+#include <hpl_delay.h>
 
 /**
  * \brief Initialize clock sources
@@ -218,6 +219,11 @@ void _oscctrl_init_referenced_generators(void)
 	hri_oscctrl_set_DPLLCTRLA_ONDEMAND_bit(hw, 1);
 #endif
 #endif
+
+	// startup default is internal osck32k -> pll @48M -> gclk0 -> cpu
+	// but this code sets it to osc32k while being reconfigured
+	// errata 2.13.1 delay
+	_delay_cycles(0, (32768U / 1000) * 10 /* 10 ms*/);
 
 #if CONF_DFLL_CONFIG == 1
 	while (hri_gclk_read_SYNCBUSY_reg(GCLK))

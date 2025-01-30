@@ -10,7 +10,7 @@
 //<i> Defines the cache should be enabled or not.
 // <id> cmcc_enable
 #ifndef CONF_CMCC_ENABLE
-#define CONF_CMCC_ENABLE 0x0
+#define CONF_CMCC_ENABLE 0x1
 #endif
 
 // <o> Cache Size
@@ -29,7 +29,7 @@
 //<i> Defines the data cache should be disabled or not.
 // <id> cmcc_data_cache_disable
 #ifndef CONF_CMCC_DATA_CACHE_DISABLE
-#define CONF_CMCC_DATA_CACHE_DISABLE 0x0
+#define CONF_CMCC_DATA_CACHE_DISABLE 0x1
 #endif
 
 // <q> Instruction cache disable

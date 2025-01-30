@@ -6,5 +6,5 @@
 void atmel_start_init(void)
 {
 	system_init();
-	usb_init();
+	// do not init usb here: might not be needed.
 }

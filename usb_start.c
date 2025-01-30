@@ -151,8 +151,7 @@ void usb_dfu(void)
 	while (!dfudf_is_enabled()); // wait for DFU to be installed
 	LED_SYSTEM_on(); // switch LED on to indicate USB DFU stack is ready
 
-	ASSERT(hri_nvmctrl_read_STATUS_BOOTPROT_bf(FLASH_0.dev.hw) <= 15);
-	uint32_t application_start_address = (15 - hri_nvmctrl_read_STATUS_BOOTPROT_bf(FLASH_0.dev.hw)) * 8192; // calculate bootloader size to know where we should write the application firmware
+	uint32_t application_start_address = BL_SIZE_BYTE;
 	ASSERT(application_start_address > 0);
 
 	while (true) { // main DFU infinite loop

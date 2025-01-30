@@ -43,7 +43,7 @@
 // <i> Indicates whether configuration for External 32K Osc is enabled or not
 // <id> enable_xosc32k
 #ifndef CONF_XOSC32K_CONFIG
-#define CONF_XOSC32K_CONFIG 1
+#define CONF_XOSC32K_CONFIG 0
 #endif
 
 // <h> 32kHz External Crystal Oscillator Control
@@ -51,7 +51,7 @@
 // <i> Indicates whether 32kHz External Crystal Oscillator is enabled or not
 // <id> xosc32k_arch_enable
 #ifndef CONF_XOSC32K_ENABLE
-#define CONF_XOSC32K_ENABLE 1
+#define CONF_XOSC32K_ENABLE 0
 #endif
 
 // <o> Start-Up Time
@@ -71,21 +71,21 @@
 // <i> Indicates whether On Demand Control is enabled or not
 // <id> xosc32k_arch_ondemand
 #ifndef CONF_XOSC32K_ONDEMAND
-#define CONF_XOSC32K_ONDEMAND 1
+#define CONF_XOSC32K_ONDEMAND 0
 #endif
 
 // <q> Run in Standby
 // <i> Indicates whether Run in Standby is enabled or not
 // <id> xosc32k_arch_runstdby
 #ifndef CONF_XOSC32K_RUNSTDBY
-#define CONF_XOSC32K_RUNSTDBY 0
+#define CONF_XOSC32K_RUNSTDBY 1
 #endif
 
 // <q> 1kHz Output Enable
 // <i> Indicates whether 1kHz Output is enabled or not
 // <id> xosc32k_arch_en1k
 #ifndef CONF_XOSC32K_EN1K
-#define CONF_XOSC32K_EN1K 0
+#define CONF_XOSC32K_EN1K 1
 #endif
 
 // <q> 32kHz Output Enable
