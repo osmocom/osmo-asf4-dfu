@@ -8,3 +8,8 @@
 *.map
 .gdb_history
 NOTES
+gcc/.cache/*
+gcc/crctool
+install/*
+**/compile_commands.json
+.cache/*
