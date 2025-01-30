@@ -25,7 +25,7 @@
 #ifdef __clang__
 #define OPTNONE optnone
 #else
-#define OPTNONE optimize(0)
+#define OPTNONE optimize("O0")
 #endif
 
 #define BLSZ_BYTE (BL_SIZE_BYTE)

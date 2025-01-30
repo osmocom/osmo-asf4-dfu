@@ -668,7 +668,7 @@ void _Reset_Handler(void)
 		;
 }
 
-__attribute__((naked,noreturn)) void Reset_Handler(void)
+__attribute__((naked, noreturn, weak)) void Reset_Handler(void)
 {
 	// errata 2.6.10, do not remove this, ever.
 	// WDT->CTRLA.reg = 0;

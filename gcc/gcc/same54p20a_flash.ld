@@ -96,14 +96,14 @@ SECTIONS
 
         . = ALIGN(4);
         _efixed = .;            /* End of text section */
-    } > rom
+    } > rom = 0xff
 
     /* .ARM.exidx is sorted, so has to go in its own output section.  */
     PROVIDE_HIDDEN (__exidx_start = .);
     .ARM.exidx :
     {
       *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } > rom
+    } > rom = 0xff
     PROVIDE_HIDDEN (__exidx_end = .);
 
     . = ALIGN(4);
@@ -162,4 +162,11 @@ SECTIONS
 
     . = ALIGN(4);
     _end = . ;
+
+    /DISCARD/ :
+    {
+        *(.crc_code*)
+        *(.crc_par*)
+    }
+
 }

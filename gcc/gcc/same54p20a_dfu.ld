@@ -54,6 +54,10 @@ SECTIONS
         . = ALIGN(4);
         _sfixed = .;
         KEEP(*(.vectors .vectors.*))
+        KEEP(*(.crc_code))     /* CRC checking code */
+        KEEP(*(.crc_par))      /* CRC parameters */
+        . = ALIGN(4);
+        __CRC_Start = ORIGIN(rom) + .;
         *(.text .text.* .gnu.linkonce.t.*)
         *(.glue_7t) *(.glue_7)
         *(.rodata .rodata* .gnu.linkonce.r.*)
@@ -96,14 +100,14 @@ SECTIONS
 
         . = ALIGN(4);
         _efixed = .;            /* End of text section */
-    } > rom
+    } > rom = 0xff
 
     /* .ARM.exidx is sorted, so has to go in its own output section.  */
     PROVIDE_HIDDEN (__exidx_start = .);
     .ARM.exidx :
     {
       *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } > rom
+    } > rom = 0xff
     PROVIDE_HIDDEN (__exidx_end = .);
 
     .blupdate :
@@ -112,10 +116,11 @@ SECTIONS
         _blupdate_start = .;
         KEEP(*(.fwupdate .fwupdate.*));
         _blupdate_end = .;
-    } > rom
+    } > rom = 0xff
 
     . = ALIGN(4);
     _etext = .;
+    __CRC_End = .;
 
     .relocate : AT (_etext)
     {

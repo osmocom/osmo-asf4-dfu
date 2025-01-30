@@ -20,6 +20,7 @@
  */
 
 #include <errno.h>
+#include <stdio.h>
 #include "atmel_start.h"
 #include "atmel_start_pins.h"
 #include "hpl_user_area.h"
@@ -121,8 +122,9 @@ static int str_to_usb_desc(char *in, uint8_t in_sz, uint8_t *out, uint8_t out_sz
 }
 
 char sernr_buf[16 * 2 + 1];
-//unicode for descriptor
-uint8_t sernr_buf_descr[1 + 1 + 16 * 2 * 2];
+char product_buf[] = "sysmoOCTSIM DFU-" GIT_VERSION;
+uint8_t __attribute__((aligned(16))) sernr_buf_descr[1 + 1 + 16 * 2 * 2];
+uint8_t __attribute__((aligned(16))) product_buf_descr[1 + 1 + (sizeof(product_buf) - 1) * 2];
 #endif
 
 int main(void)
@@ -131,6 +133,7 @@ int main(void)
 #if defined(SYSMOOCTSIM)
 	get_chip_unique_serial_str(sernr_buf, sizeof(sernr_buf));
 	str_to_usb_desc(sernr_buf, sizeof(sernr_buf), sernr_buf_descr, sizeof(sernr_buf_descr));
+	str_to_usb_desc(product_buf, sizeof(product_buf) - 1, product_buf_descr, sizeof(product_buf_descr));
 #endif
 
 	// errata 2.6.10, do not remove this, ever.

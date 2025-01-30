@@ -72,6 +72,8 @@ static bool send_str_desc(uint8_t ep, const struct usb_req *req, enum usb_ctrl_s
 }
 
 extern uint8_t sernr_buf_descr[];
+extern uint8_t product_buf_descr[];
+
 /* call-back for every control EP request */
 static int32_t string_req_cb(uint8_t ep, struct usb_req *req, enum usb_ctrl_stage stage)
 {
@@ -101,6 +103,8 @@ static int32_t string_req_cb(uint8_t ep, struct usb_req *req, enum usb_ctrl_stag
 	switch (index) {
 	case CONF_USB_DFUD_ISERIALNUM:
 		return send_str_desc(ep, req, stage, sernr_buf_descr);
+	case CONF_USB_DFUD_IPRODUCT:
+		return send_str_desc(ep, req, stage, product_buf_descr);
 	default:
 		return ERR_NOT_FOUND;
 	}
