@@ -133,6 +133,14 @@ int main(void)
 	str_to_usb_desc(sernr_buf, sizeof(sernr_buf), sernr_buf_descr, sizeof(sernr_buf_descr));
 #endif
 
+	// errata 2.6.10, do not remove this, ever.
+	bool chiprev_lower_revG = ((DSU->DID.reg >> 8) & 0xf) < 0x6;
+	bool startup_wdt_inactive = _user_area_read_bits((void *)NVMCTRL_USER, 62, 1) != 1;
+	if (chiprev_lower_revG && startup_wdt_inactive) {
+		_user_area_write_bits((void *)NVMCTRL_USER, 50, 0, 4);
+		_user_area_write_bits((void *)NVMCTRL_USER, 62, 1, 1);
+	}
+
 	// set bootprot bits for (15-13)=2 x8192 byte
 	// hri_nvmctrl_write_CTRLB_reg(NVMCTRL, NVMCTRL_CTRLB_CMD_SBPDIS | NVMCTRL_CTRLB_CMDEX_KEY);
 	while (!hri_nvmctrl_get_STATUS_READY_bit(NVMCTRL)) {

@@ -74,6 +74,10 @@ int32_t _flash_init(struct _flash_device *const device, void *const hw)
 
 	ASSERT(device && (hw == NVMCTRL));
 
+	// errata 2.6.10, do not remove this, ever.
+	hri_nvmctrl_set_CTRLA_CACHEDIS1_bit(hw);
+	hri_nvmctrl_clear_CTRLA_CACHEDIS1_bit(hw);
+
 	device->hw = hw;
 	ctrla      = hri_nvmctrl_read_CTRLA_reg(hw);
 	ctrla &= ~(NVMCTRL_CTRLA_CACHEDIS0 | NVMCTRL_CTRLA_CACHEDIS1 | NVMCTRL_CTRLA_PRM_Msk);

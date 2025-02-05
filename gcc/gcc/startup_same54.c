@@ -627,7 +627,7 @@ __attribute__((section(".vectors"))) const DeviceVectors exception_table
  * \brief This is the code that gets called on processor reset.
  * To initialize the device, and call the main() routine.
  */
-void Reset_Handler(void)
+void _Reset_Handler(void)
 {
 	uint32_t *pSrc, *pDest;
 
@@ -666,6 +666,17 @@ void Reset_Handler(void)
 	/* Infinite loop */
 	while (1)
 		;
+}
+
+__attribute__((naked,noreturn)) void Reset_Handler(void)
+{
+	// errata 2.6.10, do not remove this, ever.
+	// WDT->CTRLA.reg = 0;
+	__asm volatile("movs r0, #0\n"
+		       "ldr r1, =0x40002000\n"
+		       "strb r0, [r1]\n"
+		       "bl _Reset_Handler\n"
+		       ::: "r0", "r1", "memory");
 }
 
 /**
