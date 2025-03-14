@@ -40,7 +40,7 @@ if [ "x$publish" = "x--publish" ]; then
 EOF
 	SSH_COMMAND="ssh -o 'UserKnownHostsFile=/build/known_hosts' -p 48"
 	rsync --archive --copy-links --verbose --compress --delete --rsh "$SSH_COMMAND" \
-		$TOPDIR/gcc/bootloader-sysmooctsim.{bin,elf} \
+		$TOPDIR/gcc/bootloader-sysmooctsim-{flash,dfu}.{bin,elf} \
 			binaries@ftp.osmocom.org:web-files/osmo-asf4-dfu/latest/
 	rsync --archive --verbose --compress --rsh "$SSH_COMMAND" \
 		$TOPDIR/gcc/bootloader-*-*.{bin,elf} \
