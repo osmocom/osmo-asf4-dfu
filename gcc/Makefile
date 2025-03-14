@@ -13,6 +13,10 @@ DBGFLGS += -DGIT_VERSION=\"$(GIT_VERSION)\"
 
 MK_DIR = mkdir -p
 
+ifeq (, $(shell which xxd))
+$(error missing required program "xxd")
+endif
+
 OBJS +=  \
 hal/src/hal_io.o \
 hpl/core/hpl_core_m4.o \
