@@ -1,5 +1,5 @@
 # possible values: SAME54_XPLAINED_PRO, SYSMOOCTSIM 
-SHELL := /bin/bash
+SHELL := /bin/bash -o pipefail -e
 BOARD ?= SYSMOOCTSIM
 CROSSCC ?= arm-none-eabi-
 SILENT ?= @
