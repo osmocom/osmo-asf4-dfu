@@ -75,10 +75,11 @@
 	                           CONF_USB_DFUD_BMATTRI, \
 	                           CONF_USB_DFUD_BMAXPOWER)
 
-#define DFUD_IFACE_DESCB USB_DFU_FUNC_DESC_BYTES(USB_DFU_ATTRIBUTES_CAN_DOWNLOAD | USB_DFU_ATTRIBUTES_WILL_DETACH, \
-	                     	                     0, /**< detaching makes only sense in run-time mode */ \
-	                     	                     512, /**< transfer size corresponds to page size for optimal flash writing */ \
-	                     	                     0x0110 /**< DFU specification version 1.1 used */ )
+#define DFUD_IFACE_DESCB                                                                                               \
+	USB_DFU_FUNC_DESC_BYTES(USB_DFU_ATTRIBUTES_CAN_DOWNLOAD,                                                       \
+				0, /**< detaching makes only sense in run-time mode */                                 \
+				512, /**< transfer size corresponds to page size for optimal flash writing */          \
+				0x0110 /**< DFU specification version 1.1 used */)
 
 #define DFUD_IFACE_DESCES \
 	USB_IFACE_DESC_BYTES(CONF_USB_DFUD_BIFCNUM, \
