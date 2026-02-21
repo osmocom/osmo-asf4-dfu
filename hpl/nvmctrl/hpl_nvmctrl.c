@@ -74,7 +74,10 @@ int32_t _flash_init(struct _flash_device *const device, void *const hw)
 
 	ASSERT(device && (hw == NVMCTRL));
 
-	// errata 2.6.10, do not remove this, ever.
+	/* errata 2.6.10: Rev A, D, F: Cache lines of AHB1 might be not
+	 * reset properly on Power up and might return invalid data in rare cases.
+	 * Workaround: Disable and re-enable cache1
+	 */
 	hri_nvmctrl_set_CTRLA_CACHEDIS1_bit(hw);
 	hri_nvmctrl_clear_CTRLA_CACHEDIS1_bit(hw);
 

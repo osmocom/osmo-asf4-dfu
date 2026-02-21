@@ -136,12 +136,15 @@ int main(void)
 	str_to_usb_desc(product_buf, sizeof(product_buf) - 1, product_buf_descr, sizeof(product_buf_descr));
 #endif
 
-	// errata 2.6.10, do not remove this, ever.
+	/* errata 2.6.10: Rev A, D, F: Cache lines of AHB0 might be not
+	 * reset properly on Power up and might return invalid data in rare cases.
+	 * Workaround: Start low level priority watchdog.
+	 */
 	bool chiprev_lower_revG = ((DSU->DID.reg >> 8) & 0xf) < 0x6;
 	bool startup_wdt_inactive = _user_area_read_bits((void *)NVMCTRL_USER, 62, 1) != 1;
 	if (chiprev_lower_revG && startup_wdt_inactive) {
-		_user_area_write_bits((void *)NVMCTRL_USER, 50, 0, 4);
-		_user_area_write_bits((void *)NVMCTRL_USER, 62, 1, 1);
+		_user_area_write_bits((void *)NVMCTRL_USER, 50, 0, 4); /* Watchdog period 0 */
+		_user_area_write_bits((void *)NVMCTRL_USER, 62, 1, 1); /* Enable watchdog */
 	}
 
 	// set bootprot bits for (15-13)=2 x8192 byte

@@ -670,7 +670,9 @@ void _Reset_Handler(void)
 
 __attribute__((naked, noreturn, weak)) void Reset_Handler(void)
 {
-	// errata 2.6.10, do not remove this, ever.
+	/* errata 2.6.10: Rev A, D, F: Cache lines of AHB0 & AHB1 might be not
+	 * reset properly on Power up and might return invalid data in rare cases.
+	 */
 	// WDT->CTRLA.reg = 0;
 	__asm volatile("movs r0, #0\n"
 		       "ldr r1, =0x40002000\n"
