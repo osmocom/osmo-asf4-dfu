@@ -167,9 +167,12 @@ static int32_t dfudf_in_req(uint8_t ep, struct usb_req *req, enum usb_ctrl_stage
 		response[4] = dfu_state; // set state
 		response[5] = 0; // string not used
 		to_return = usbdc_xfer(ep, response, 6, false); // send back status
-		if (USB_DFU_STATE_DFU_DNLOAD_SYNC == dfu_state) { // download has not completed
+
+		switch (dfu_state) {
+		case USB_DFU_STATE_DFU_DNLOAD_SYNC: // download has not completed
 			dfu_state = USB_DFU_STATE_DFU_DNBUSY; // switch to busy state
-		} else if (USB_DFU_STATE_DFU_MANIFEST_SYNC == dfu_state) {
+			break;
+		case USB_DFU_STATE_DFU_MANIFEST_SYNC:
 			if (!dfu_manifestation_complete) {
 				dfu_state = USB_DFU_STATE_DFU_MANIFEST; // go to manifest mode
 			} else if (usb_dfu_func_desc->bmAttributes & USB_DFU_ATTRIBUTES_MANIFEST_TOLERANT) {
@@ -177,6 +180,9 @@ static int32_t dfudf_in_req(uint8_t ep, struct usb_req *req, enum usb_ctrl_stage
 			} else { // this should not happen (after manifestation the state should be dfuMANIFEST-WAIT-RESET if we are not manifest tolerant)
 				dfu_state = USB_DFU_STATE_DFU_MANIFEST_WAIT_RESET; // wait for reset
 			}
+			break;
+		default:
+			break;
 		}
 		break;
 	case USB_DFU_GETSTATE: // get state
