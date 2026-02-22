@@ -199,6 +199,9 @@ void usb_dfu(void)
 		case USB_DFU_STATE_DFU_MANIFEST: // we can start manifestation (finish flashing)
 			// in theory every DFU files should have a suffix to with a CRC to check the data
 			// in practice most downloaded files are just the raw binary with DFU suffix
+			/* give the previous GET STATUS packet some time to arrive, because otherwise
+			   the board might go into reset to fast through MANIFEST_WAIT_RESET */
+			delay_ms(5);
 			CRITICAL_SECTION_ENTER();
 			dfu_manifestation_complete = true; // we completed flashing and all checks
 			if (usb_dfu_func_desc->bmAttributes & USB_DFU_ATTRIBUTES_MANIFEST_TOLERANT) {
