@@ -160,14 +160,6 @@ static int32_t dfudf_in_req(uint8_t ep, struct usb_req *req, enum usb_ctrl_stage
 		to_return = ERR_UNSUPPORTED_OP; // stall control pipe (don't reply to the request)
 		break;
 	case USB_DFU_GETSTATUS: // get status
-		response[0] = dfu_status; // set status
-		response[1] = 10; // set poll timeout (24 bits, in milliseconds) to small value for periodical poll
-		response[2] = 0; // set poll timeout (24 bits, in milliseconds) to small value for periodical poll
-		response[3] = 0; // set poll timeout (24 bits, in milliseconds) to small value for periodical poll
-		response[4] = dfu_state; // set state
-		response[5] = 0; // string not used
-		to_return = usbdc_xfer(ep, response, 6, false); // send back status
-
 		switch (dfu_state) {
 		case USB_DFU_STATE_DFU_DNLOAD_SYNC: // download has not completed
 			dfu_state = USB_DFU_STATE_DFU_DNBUSY; // switch to busy state
@@ -184,6 +176,15 @@ static int32_t dfudf_in_req(uint8_t ep, struct usb_req *req, enum usb_ctrl_stage
 		default:
 			break;
 		}
+
+		response[0] = dfu_status; // set status
+		response[1] = 10; // set poll timeout (24 bits, in milliseconds) to small value for periodical poll
+		response[2] = 0; // set poll timeout (24 bits, in milliseconds) to small value for periodical poll
+		response[3] = 0; // set poll timeout (24 bits, in milliseconds) to small value for periodical poll
+		response[4] = dfu_state; // set state
+		response[5] = 0; // string not used
+		to_return = usbdc_xfer(ep, response, 6, false); // send back status
+
 		break;
 	case USB_DFU_GETSTATE: // get state
 		response[0] = dfu_state; // return state
