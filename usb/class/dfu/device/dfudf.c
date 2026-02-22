@@ -39,8 +39,8 @@ static struct dfudf_func_data _dfudf_funcd;
 static const uint8_t usb_dfu_func_desc_bytes[] = {DFUD_IFACE_DESCB};
 static const usb_dfu_func_desc_t* usb_dfu_func_desc = (usb_dfu_func_desc_t*)&usb_dfu_func_desc_bytes;
 
-enum usb_dfu_state dfu_state = USB_DFU_STATE_DFU_IDLE;
-enum usb_dfu_status dfu_status = USB_DFU_STATUS_OK;
+volatile enum usb_dfu_state dfu_state = USB_DFU_STATE_DFU_IDLE;
+volatile enum usb_dfu_status dfu_status = USB_DFU_STATUS_OK;
 
 uint8_t dfu_download_data[512];
 uint16_t dfu_download_length = 0;
