@@ -159,8 +159,11 @@ void usb_dfu(void)
 	ASSERT(application_start_address > 0);
 
 	while (true) { // main DFU infinite loop
+		enum usb_dfu_state last_dfu_state = dfu_state;
+
 		// run the second part of the USB DFU state machine handling non-USB aspects
-		if (USB_DFU_STATE_DFU_DNLOAD_SYNC == dfu_state || USB_DFU_STATE_DFU_DNBUSY == dfu_state) { // there is some data to be flashed
+		if (USB_DFU_STATE_DFU_DNLOAD_SYNC == last_dfu_state ||
+		    USB_DFU_STATE_DFU_DNBUSY == last_dfu_state) { // there is some data to be flashed
 			LED_SYSTEM_off(); // switch LED off to indicate we are flashing
 			if (dfu_download_length > 0) { // there is some data to be flashed
 				int32_t rc = flash_write(&FLASH_0, application_start_address + dfu_download_offset, dfu_download_data, dfu_download_length); // write downloaded data chunk to flash
@@ -182,7 +185,7 @@ void usb_dfu(void)
 			}
 			LED_SYSTEM_on(); // switch LED on to indicate USB DFU can resume
 		}
-		if (USB_DFU_STATE_DFU_MANIFEST == dfu_state) { // we can start manifestation (finish flashing)
+		if (USB_DFU_STATE_DFU_MANIFEST == last_dfu_state) { // we can start manifestation (finish flashing)
 			// in theory every DFU files should have a suffix to with a CRC to check the data
 			// in practice most downloaded files are just the raw binary with DFU suffix
 			dfu_manifestation_complete = true; // we completed flashing and all checks
@@ -192,7 +195,7 @@ void usb_dfu(void)
 				dfu_state = USB_DFU_STATE_DFU_MANIFEST_WAIT_RESET;
 			}
 		}
-		if (USB_DFU_STATE_DFU_MANIFEST_WAIT_RESET == dfu_state) {
+		if (USB_DFU_STATE_DFU_MANIFEST_WAIT_RESET == last_dfu_state) {
 			if (usb_dfu_func_desc->bmAttributes & USB_DFU_ATTRIBUTES_WILL_DETACH) {
 				usb_dfu_reset(USB_EV_RESET, 0); // immediately reset
 			} else { // wait for USB reset
