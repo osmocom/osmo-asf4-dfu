@@ -183,10 +183,12 @@ static int32_t dfudf_in_req(uint8_t ep, struct usb_req *req, enum usb_ctrl_stage
 		case USB_DFU_STATE_DFU_MANIFEST_SYNC:
 			if (!dfu_manifestation_complete) {
 				dfu_state = USB_DFU_STATE_DFU_MANIFEST; // go to manifest mode
-			} else if (usb_dfu_func_desc->bmAttributes & USB_DFU_ATTRIBUTES_MANIFEST_TOLERANT) {
-				dfu_state = USB_DFU_STATE_DFU_IDLE; // go back to idle mode
-			} else { // this should not happen (after manifestation the state should be dfuMANIFEST-WAIT-RESET if we are not manifest tolerant)
-				dfu_state = USB_DFU_STATE_DFU_MANIFEST_WAIT_RESET; // wait for reset
+			} else {
+				/* manifestation complete */
+				if (usb_dfu_func_desc->bmAttributes & USB_DFU_ATTRIBUTES_MANIFEST_TOLERANT) {
+					dfu_state = USB_DFU_STATE_DFU_IDLE; // go back to idle mode
+				}
+				/* otherwise stay in MANIFEST_SYNC */
 			}
 			break;
 		default:
