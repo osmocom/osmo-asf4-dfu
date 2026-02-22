@@ -164,25 +164,33 @@ void usb_dfu(void)
 		// run the second part of the USB DFU state machine handling non-USB aspects
 		switch (last_dfu_state) {
 		case USB_DFU_STATE_DFU_DNLOAD_SYNC:
-		case USB_DFU_STATE_DFU_DNBUSY: // there is some data to be flashed
+		case USB_DFU_STATE_DFU_DNBUSY:
+			if (dfu_flash_done)
+				break;
+
 			LED_SYSTEM_off(); // switch LED off to indicate we are flashing
 			if (dfu_download_length > 0) { // there is some data to be flashed
-				int32_t rc = flash_write(&FLASH_0, application_start_address + dfu_download_offset, dfu_download_data, dfu_download_length); // write downloaded data chunk to flash
-				if (ERR_NONE == rc) {
-					dfu_state = USB_DFU_STATE_DFU_DNLOAD_IDLE; // indicate flashing this block has been completed
-				} else { // there has been a programming error
-					dfu_state = USB_DFU_STATE_DFU_ERROR;
-					if (ERR_BAD_ADDRESS == rc) {
-						dfu_status = USB_DFU_STATUS_ERR_ADDRESS;
-					} else if (ERR_DENIED == rc) {
-						dfu_status = USB_DFU_STATUS_ERR_WRITE;
-					} else {
-						dfu_status = USB_DFU_STATUS_ERR_PROG;
-					}
+				int32_t rc = flash_write(&FLASH_0, application_start_address + dfu_download_offset,
+							 dfu_download_data,
+							 dfu_download_length); // write downloaded data chunk to flash
+				CRITICAL_SECTION_ENTER();
+				switch (rc) {
+				case ERR_NONE:
+					dfu_flash_status = USB_DFU_STATUS_OK;
+					dfu_download_offset += dfu_download_length;
+					break;
+				case ERR_BAD_ADDRESS:
+					dfu_flash_status = USB_DFU_STATUS_ERR_ADDRESS;
+					break;
+				case ERR_DENIED:
+					dfu_flash_status = USB_DFU_STATUS_ERR_WRITE;
+					break;
+				default:
+					dfu_flash_status = USB_DFU_STATUS_ERR_PROG;
+					break;
 				}
-			} else { // there was no data to flash
-				// this case should not happen, but it's not a critical error
-				dfu_state = USB_DFU_STATE_DFU_DNLOAD_IDLE; // indicate flashing can continue
+				dfu_flash_done = true;
+				CRITICAL_SECTION_LEAVE();
 			}
 			LED_SYSTEM_on(); // switch LED on to indicate USB DFU can resume
 			break;

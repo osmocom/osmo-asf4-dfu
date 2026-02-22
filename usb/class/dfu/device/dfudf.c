@@ -42,9 +42,15 @@ static const usb_dfu_func_desc_t* usb_dfu_func_desc = (usb_dfu_func_desc_t*)&usb
 volatile enum usb_dfu_state dfu_state = USB_DFU_STATE_DFU_IDLE;
 volatile enum usb_dfu_status dfu_status = USB_DFU_STATUS_OK;
 
+/* flashed the last given block */
 uint8_t dfu_download_data[512];
-uint16_t dfu_download_length = 0;
-size_t dfu_download_offset = 0;
+volatile uint16_t dfu_download_length = 0;
+volatile size_t dfu_download_offset = 0;
+
+/* only when flash done is true, flash rc is valid */
+volatile bool dfu_flash_done = false;
+volatile enum usb_dfu_status dfu_flash_status = USB_DFU_STATUS_ERR_UNKNOWN;
+
 bool dfu_manifestation_complete = false;
 
 /**
@@ -163,8 +169,18 @@ static int32_t dfudf_in_req(uint8_t ep, struct usb_req *req, enum usb_ctrl_stage
 		// per DFU 1.1 spec, bState must report the state the device will enter
 		// after this response, so perform state transitions before building response
 		switch (dfu_state) {
-		case USB_DFU_STATE_DFU_DNLOAD_SYNC: // download has not completed
-			dfu_state = USB_DFU_STATE_DFU_DNBUSY; // switch to busy state
+		case USB_DFU_STATE_DFU_DNLOAD_SYNC:
+		case USB_DFU_STATE_DFU_DNBUSY:
+			if (!dfu_flash_done) {
+				dfu_state = USB_DFU_STATE_DFU_DNBUSY;
+				break;
+			}
+
+			dfu_status = dfu_flash_status;
+			if (dfu_status == USB_DFU_STATUS_OK)
+				dfu_state = USB_DFU_STATE_DFU_DNLOAD_IDLE;
+			else
+				dfu_state = USB_DFU_STATE_DFU_ERROR;
 			break;
 		case USB_DFU_STATE_DFU_MANIFEST_SYNC:
 			if (!dfu_manifestation_complete) {
@@ -230,36 +246,50 @@ static int32_t dfudf_out_req(uint8_t ep, struct usb_req *req, enum usb_ctrl_stag
 		if (!(usb_dfu_func_desc->bmAttributes & USB_REQ_DFU_DNLOAD)) { // download is not enabled
 			dfu_state = USB_DFU_STATE_DFU_ERROR; // unsupported class request
 			to_return = ERR_UNSUPPORTED_OP; // stall control pipe (don't reply to the request)
+			break;
 		} else if (USB_DFU_STATE_DFU_IDLE != dfu_state && USB_DFU_STATE_DFU_DNLOAD_IDLE != dfu_state) { // wrong state to request download
 			// warn about programming error
 			dfu_status = USB_DFU_STATUS_ERR_PROG;
 			dfu_state = USB_DFU_STATE_DFU_ERROR;
 			to_return = ERR_INVALID_ARG; // stall control pipe to indicate error
+			break;
 		} else if (USB_DFU_STATE_DFU_IDLE == dfu_state && (0 == req->wLength)) { // download request should not start empty
 			// warn about programming error
 			dfu_status = USB_DFU_STATUS_ERR_PROG;
 			dfu_state = USB_DFU_STATE_DFU_ERROR;
 			to_return = ERR_INVALID_ARG; // stall control pipe to indicate error
+			break;
 		} else if (USB_DFU_STATE_DFU_DNLOAD_IDLE == dfu_state && (0 == req->wLength)) { // download completed
 			dfu_manifestation_complete = false; // clear manifestation status
+			to_return = usbdc_xfer(ep, NULL, 0, false); // send ack to the setup request to get the data
 			dfu_state = USB_DFU_STATE_DFU_MANIFEST_SYNC; // prepare for manifestation phase
-			to_return = usbdc_xfer(ep, NULL, 0, false); // send ACK
+			break;
 		} else if (req->wLength > sizeof(dfu_download_data)) { // there is more data to be flash then our buffer (the USB control buffer size should be less or equal)
 			// warn about programming error
 			dfu_status = USB_DFU_STATUS_ERR_PROG;
 			dfu_state = USB_DFU_STATE_DFU_ERROR;
 			to_return = ERR_INVALID_ARG; // stall control pipe to indicate error
-		} else { // there is data to be flash
-			if (USB_SETUP_STAGE == stage) { // there will be data to be flash
-				to_return = usbdc_xfer(ep, dfu_download_data, req->wLength, false); // send ack to the setup request to get the data
-			} else { // now there is data to be flashed
-				dfu_download_offset = req->wValue * sizeof(dfu_download_data); // remember which block to flash
-				dfu_download_length = req->wLength; // remember the data size to be flash
-				dfu_state = USB_DFU_STATE_DFU_DNLOAD_SYNC; // go to sync state
-				to_return = usbdc_xfer(ep, NULL, 0, false); // ACK the data
-				// we let the main application flash the data because this can be long and would stall the USB ISR
-			}
+			break;
 		}
+
+		/* The error cases are handled */
+		if (USB_SETUP_STAGE == stage) { // there will be data to be flash
+			to_return = usbdc_xfer(ep, dfu_download_data, req->wLength,
+					       false); // send ack to the setup request to get the data
+			break;
+		}
+
+		// now there is data to be flashed
+		if (USB_DFU_STATE_DFU_IDLE == dfu_state) {
+			/* first packet */
+			dfu_download_offset = 0;
+		}
+
+		/* main loop will increment offset after flashing */
+		dfu_download_length = req->wLength;
+		dfu_state = USB_DFU_STATE_DFU_DNLOAD_SYNC;
+		to_return = usbdc_xfer(ep, NULL, 0, false);
+		dfu_flash_done = false;
 		break;
 	default: // all other DFU class OUT request
 		dfu_state = USB_DFU_STATE_DFU_ERROR; // unknown class request

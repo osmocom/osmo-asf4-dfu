@@ -48,9 +48,14 @@ extern volatile enum usb_dfu_status dfu_status;
  */
 extern uint8_t dfu_download_data[512];
 /** Length of downloaded data in bytes */
-extern uint16_t dfu_download_length;
+extern volatile uint16_t dfu_download_length;
 /** Offset of where the downloaded data should be flashed in bytes */
-extern size_t dfu_download_offset;
+extern volatile size_t dfu_download_offset;
+
+/** when flash done is true, flash status is valid */
+extern volatile bool dfu_flash_done;
+/** Result of the last blocked flashed. */
+extern volatile enum usb_dfu_status dfu_flash_status;
 /** If manifestation (firmware flash and check) is complete */
 extern bool dfu_manifestation_complete;
 
