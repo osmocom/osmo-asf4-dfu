@@ -38,9 +38,9 @@
 #include "usb_protocol_dfu.h"
 
 /** Current DFU state */
-extern enum usb_dfu_state dfu_state;
+extern volatile enum usb_dfu_state dfu_state;
 /**< Current DFU status */
-extern enum usb_dfu_status dfu_status;
+extern volatile enum usb_dfu_status dfu_status;
 
 /** Downloaded data to be programmed in flash
  *
