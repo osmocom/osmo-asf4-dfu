@@ -199,12 +199,14 @@ void usb_dfu(void)
 		case USB_DFU_STATE_DFU_MANIFEST: // we can start manifestation (finish flashing)
 			// in theory every DFU files should have a suffix to with a CRC to check the data
 			// in practice most downloaded files are just the raw binary with DFU suffix
+			CRITICAL_SECTION_ENTER();
 			dfu_manifestation_complete = true; // we completed flashing and all checks
 			if (usb_dfu_func_desc->bmAttributes & USB_DFU_ATTRIBUTES_MANIFEST_TOLERANT) {
 				dfu_state = USB_DFU_STATE_DFU_MANIFEST_SYNC;
 			} else {
 				dfu_state = USB_DFU_STATE_DFU_MANIFEST_WAIT_RESET;
 			}
+			CRITICAL_SECTION_LEAVE();
 			break;
 		case USB_DFU_STATE_DFU_MANIFEST_WAIT_RESET:
 			if (usb_dfu_func_desc->bmAttributes & USB_DFU_ATTRIBUTES_WILL_DETACH) {
