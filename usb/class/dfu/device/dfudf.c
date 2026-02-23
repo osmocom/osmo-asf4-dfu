@@ -47,8 +47,12 @@ uint8_t dfu_download_data[512];
 volatile uint16_t dfu_download_length = 0;
 volatile size_t dfu_download_offset = 0;
 
+volatile uint16_t dfu_upload_length = 0;
+volatile size_t dfu_upload_block = 0;
+volatile uint8_t dfu_upload_ep = 0;
+
 /* only when flash done is true, flash rc is valid */
-volatile bool dfu_flash_done = false;
+volatile bool dfu_flash_done = true;
 volatile enum usb_dfu_status dfu_flash_status = USB_DFU_STATUS_ERR_UNKNOWN;
 
 bool dfu_manifestation_complete = false;
@@ -162,8 +166,38 @@ static int32_t dfudf_in_req(uint8_t ep, struct usb_req *req, enum usb_ctrl_stage
 	uint8_t response[6]; // buffer for the response to this request
 	switch (req->bRequest) {
 	case USB_DFU_UPLOAD: // upload firmware from flash not supported
-		dfu_state = USB_DFU_STATE_DFU_ERROR; // unsupported class request
-		to_return = ERR_UNSUPPORTED_OP; // stall control pipe (don't reply to the request)
+		switch (dfu_state) {
+		case USB_DFU_STATE_DFU_IDLE:
+		case USB_DFU_STATE_DFU_UPLOAD_IDLE:
+			if (!dfu_flash_done) {
+				/* TODO: Corner case, dfu_flash_done should */
+				break;
+			}
+
+			if (!req->wLength) {
+				/* TODO: Invalid Length */
+				dfu_state = USB_DFU_STATUS_ERR_ADDRESS;
+				to_return = ERR_UNSUPPORTED_OP;
+				break;
+			}
+
+			if (req->wLength > sizeof(dfu_download_data)) {
+				dfu_state = USB_DFU_STATUS_ERR_ADDRESS;
+				to_return = ERR_UNSUPPORTED_OP;
+				break;
+			}
+
+			dfu_upload_length = req->wLength;
+			dfu_upload_block = req->wValue;
+			dfu_upload_ep = ep;
+			dfu_flash_done = false;
+			dfu_state = USB_DFU_STATE_DFU_UPLOAD_IDLE;
+			break;
+		default:
+			dfu_state = USB_DFU_STATE_DFU_ERROR; // unsupported class request
+			to_return = ERR_UNSUPPORTED_OP; // stall control pipe (don't reply to the request)
+			break;
+		}
 		break;
 	case USB_DFU_GETSTATUS:
 		switch (dfu_state) {

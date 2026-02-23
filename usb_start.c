@@ -152,6 +152,7 @@ static void usb_dfu_reset(const enum usb_event ev, const uint32_t param)
  */
 void usb_dfu(void)
 {
+	int32_t rc = 0;
 	while (!dfudf_is_enabled()); // wait for DFU to be installed
 	LED_SYSTEM_on(); // switch LED on to indicate USB DFU stack is ready
 
@@ -163,6 +164,29 @@ void usb_dfu(void)
 
 		// run the second part of the USB DFU state machine handling non-USB aspects
 		switch (last_dfu_state) {
+		case USB_DFU_STATE_DFU_UPLOAD_IDLE:
+			if (dfu_flash_done)
+				break;
+
+			if (dfu_upload_length > 0) {
+				/* Static max to 256kb for now */
+				uint32_t app_offset = dfu_upload_block * dfu_upload_length;
+				if (app_offset >= 256 * 1024)
+					dfu_upload_length = 0;
+				else if (app_offset + dfu_upload_length > 256 * 1024)
+					dfu_upload_length = (app_offset + dfu_upload_length) - 256 * 1024;
+
+				if (dfu_upload_length > 0) {
+					rc = flash_read(&FLASH_0, application_start_address + app_offset,
+							dfu_download_data,
+							dfu_upload_length);
+				}
+			}
+
+			rc = usbdc_xfer(dfu_upload_ep, dfu_download_data, dfu_upload_length, false);
+			/* FIXME: check rc */
+			dfu_flash_done = true;
+			break;
 		case USB_DFU_STATE_DFU_DNLOAD_SYNC:
 		case USB_DFU_STATE_DFU_DNBUSY:
 			if (dfu_flash_done)

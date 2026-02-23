@@ -56,6 +56,11 @@ extern volatile size_t dfu_download_offset;
 extern volatile bool dfu_flash_done;
 /** Result of the last blocked flashed. */
 extern volatile enum usb_dfu_status dfu_flash_status;
+
+extern volatile uint16_t dfu_upload_length;
+extern volatile size_t dfu_upload_block;
+extern volatile uint8_t dfu_upload_ep;
+
 /** If manifestation (firmware flash and check) is complete */
 extern bool dfu_manifestation_complete;
 
