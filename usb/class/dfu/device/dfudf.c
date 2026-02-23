@@ -160,14 +160,9 @@ static int32_t dfudf_in_req(uint8_t ep, struct usb_req *req, enum usb_ctrl_stage
 		to_return = ERR_UNSUPPORTED_OP; // stall control pipe (don't reply to the request)
 		break;
 	case USB_DFU_GETSTATUS: // get status
-		response[0] = dfu_status; // set status
-		response[1] = 10; // set poll timeout (24 bits, in milliseconds) to small value for periodical poll
-		response[2] = 0; // set poll timeout (24 bits, in milliseconds) to small value for periodical poll
-		response[3] = 0; // set poll timeout (24 bits, in milliseconds) to small value for periodical poll
-		response[4] = dfu_state; // set state
-		response[5] = 0; // string not used
-		to_return = usbdc_xfer(ep, response, 6, false); // send back status
-		if (USB_DFU_STATE_DFU_DNLOAD_SYNC == dfu_state) { // download has not completed
+		// per DFU 1.1 spec, bState must report the state the device will enter
+		// after this response, so perform state transitions before building response
+		if (USB_DFU_STATE_DFU_DNLOAD_SYNC == dfu_state) {
 			dfu_state = USB_DFU_STATE_DFU_DNBUSY; // switch to busy state
 		} else if (USB_DFU_STATE_DFU_MANIFEST_SYNC == dfu_state) {
 			if (!dfu_manifestation_complete) {
@@ -178,6 +173,13 @@ static int32_t dfudf_in_req(uint8_t ep, struct usb_req *req, enum usb_ctrl_stage
 				dfu_state = USB_DFU_STATE_DFU_MANIFEST_WAIT_RESET; // wait for reset
 			}
 		}
+		response[0] = dfu_status; // set status
+		response[1] = 10; // set poll timeout (24 bits, in milliseconds) to small value for periodical poll
+		response[2] = 0; // set poll timeout (24 bits, in milliseconds) to small value for periodical poll
+		response[3] = 0; // set poll timeout (24 bits, in milliseconds) to small value for periodical poll
+		response[4] = dfu_state; // set state (post-transition)
+		response[5] = 0; // string not used
+		to_return = usbdc_xfer(ep, response, 6, false); // send back status
 		break;
 	case USB_DFU_GETSTATE: // get state
 		response[0] = dfu_state; // return state
