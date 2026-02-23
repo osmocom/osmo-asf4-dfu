@@ -153,7 +153,7 @@ static int32_t dfudf_in_req(uint8_t ep, struct usb_req *req, enum usb_ctrl_stage
 	}
 
 	int32_t to_return = ERR_NONE;
-	uint8_t response[6]; // buffer for the response to this request
+	static uint8_t response[6]; // static: usbdc_xfer stores a pointer for async DMA
 	switch (req->bRequest) {
 	case USB_DFU_UPLOAD: // upload firmware from flash not supported
 		dfu_state = USB_DFU_STATE_DFU_ERROR; // unsupported class request
