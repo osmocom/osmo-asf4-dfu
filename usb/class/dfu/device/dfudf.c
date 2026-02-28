@@ -203,11 +203,13 @@ static int32_t dfudf_in_req(uint8_t ep, struct usb_req *req, enum usb_ctrl_stage
 		response[3] = 0; // set poll timeout (24 bits, in milliseconds) to small value for periodical poll
 		response[4] = dfu_state; // set state (post-transition)
 		response[5] = 0; // string not used
-		to_return = usbdc_xfer(ep, response, 6, false); // send back status
+		/* usbdc_xfer can fail, but don't stop the pipe if this fails, wait for the next request */
+		usbdc_xfer(ep, response, 6, false); // send back status
 		break;
 	case USB_DFU_GETSTATE: // get state
 		response[0] = dfu_state; // return state
-		to_return = usbdc_xfer(ep, response, 1, false); // send back state
+		/* usbdc_xfer can fail, but don't stop the pipe if this fails, wait for the next request */
+		usbdc_xfer(ep, response, 1, false); // send back state
 		break;
 	default: // all other DFU class IN request
 		dfu_state = USB_DFU_STATE_DFU_ERROR; // unknown or unsupported class request
