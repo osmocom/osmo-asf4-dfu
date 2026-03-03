@@ -18,6 +18,7 @@
 #include "atmel_start.h"
 #include "usb_start.h"
 #include "config/usbd_config.h"
+#include "timer.h"
 
 #if CONF_USBD_HS_SP
 static uint8_t single_desc_bytes[] = {
@@ -152,14 +153,21 @@ static void usb_dfu_reset(const enum usb_event ev, const uint32_t param)
  */
 void usb_dfu(void)
 {
-	while (!dfudf_is_enabled()); // wait for DFU to be installed
-	LED_SYSTEM_on(); // switch LED on to indicate USB DFU stack is ready
+	tc0_setup();
 
 	uint32_t application_start_address = BL_SIZE_BYTE;
 	ASSERT(application_start_address > 0);
 
 	while (true) { // main DFU infinite loop
 		enum usb_dfu_state last_dfu_state = dfu_state;
+
+		/* blink the led with 0.5s off, 0.5s on */
+		if (tc0_finished_rearm())
+			LED_SYSTEM_toggle();
+
+		// wait for DFU to be installed
+		if (!dfudf_is_enabled())
+			continue;
 
 		// run the second part of the USB DFU state machine handling non-USB aspects
 		switch (last_dfu_state) {

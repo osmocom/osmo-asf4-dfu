@@ -157,6 +157,11 @@ void LED_SYSTEM_off(void)
 #endif
 }
 
+void LED_SYSTEM_toggle(void)
+{
+	gpio_toggle_pin_level(LED_SYSTEM);
+}
+
 void system_init(void)
 {
 	init_mcu();
