@@ -43,6 +43,11 @@ void LED_SYSTEM_on(void);
 void LED_SYSTEM_off(void);
 
 /**
+ * \brief Toggle system LED
+ */
+void LED_SYSTEM_toggle(void);
+
+/**
  * \brief Perform system initialization, initialize pins and clocks for
  * peripherals
  */

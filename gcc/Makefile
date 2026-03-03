@@ -50,7 +50,8 @@ hal/src/hal_cache.o \
 hpl/cmcc/hpl_cmcc.o \
 atmel_start.o \
 usb/device/usbdc.o \
-hal/src/hal_atomic.o
+hal/src/hal_atomic.o \
+timer.o
 
 SRC_hosttools = crc_code.c
 SRC_dfu = usb_dfu_main.c crc_code.c crc_params.c
