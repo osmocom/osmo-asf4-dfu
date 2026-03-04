@@ -153,8 +153,27 @@ int main(void)
 		_user_area_write_bits((void *)NVMCTRL_FUSES_BOOTPROT_ADDR, NVMCTRL_FUSES_BOOTPROT_Pos, 13, 4);
 	}
 
-	struct bootstate *bootstate = (struct bootstate *) ((void *)0x47000000);
-	uint8_t bootcounter = increase_bootcounter(bootstate);
+	/* enable ABPA access for TC0 */
+	hri_mclk_set_APBAMASK_RTC_bit(MCLK);
+
+	// enable GP0 - GP3
+	hri_rtcmode0_write_CTRLB_GP0EN_bit(RTC, true);
+	hri_rtcmode0_write_CTRLB_GP2EN_bit(RTC, true);
+	uint32_t gp0 = hri_rtc_read_GP_reg(RTC, 0);
+	uint32_t gp1 = hri_rtc_read_GP_reg(RTC, 1);
+	uint32_t bootcounter = 0;
+	if (gp0 == BOOTSTATE_MAGIC) {
+		bootcounter = gp1;
+		if (bootcounter > 255)
+			bootcounter = 1;
+		else if (bootcounter < 255)
+			bootcounter++;
+	}
+	gp0 = BOOTSTATE_MAGIC;
+	gp1 = bootcounter;
+	hri_rtc_write_GP_reg(RTC, 0, gp0);
+	hri_rtc_write_GP_reg(RTC, 1, gp1);
+	hri_rtc_set_DBGCTRL_DBGRUN_bit(RTC);
 
 	if (!check_force_dfu() && check_application() && bootcounter < 5) { // application is valid
 		start_application(); // start application
