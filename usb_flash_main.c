@@ -24,6 +24,7 @@
 #include "atmel_start.h"
 #include "atmel_start_pins.h"
 #include "hpl_user_area.h"
+#include "bootstate.h"
 
 /** Start address of the application in flash
  *  \remark must be initialized by check_bootloader
@@ -152,7 +153,10 @@ int main(void)
 		_user_area_write_bits((void *)NVMCTRL_FUSES_BOOTPROT_ADDR, NVMCTRL_FUSES_BOOTPROT_Pos, 13, 4);
 	}
 
-	if (!check_force_dfu() && check_application()) { // application is valid
+	struct bootstate *bootstate = (struct bootstate *) ((void *)0x47000000);
+	uint8_t bootcounter = increase_bootcounter(bootstate);
+
+	if (!check_force_dfu() && check_application() && bootcounter < 5) { // application is valid
 		start_application(); // start application
 	} else {
 		if (!check_application()) { // if the application is corrupted the start DFU start should be dfuERROR

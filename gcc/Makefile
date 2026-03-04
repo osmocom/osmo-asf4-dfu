@@ -51,6 +51,7 @@ hpl/cmcc/hpl_cmcc.o \
 atmel_start.o \
 usb/device/usbdc.o \
 hal/src/hal_atomic.o \
+bootstate.o \
 timer.o
 
 SRC_hosttools = crc_code.c
