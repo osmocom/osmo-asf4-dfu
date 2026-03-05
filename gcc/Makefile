@@ -189,6 +189,10 @@ clean-%:
 clean: clean-dfu clean-flash
 	rm -f $(OBJS_AS_ARGS)
 	rm -f $(DEPS_AS_ARGS)
+	rm -f $(DFU_DEPS)
+	rm -f $(FLASH_DEPS)
+	rm -f $(OBJ_dfu)
+	rm -f $(OBJ_flash)
 
 mrproper: clean
 	rm -f *.o *.d *.a *.elf *.bin *.hex *.ihex *.eep *.lss *.map *.srec
