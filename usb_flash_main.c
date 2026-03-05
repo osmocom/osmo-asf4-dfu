@@ -91,6 +91,16 @@ static int get_chip_unique_serial(uint8_t *out, size_t len)
 	return 0;
 }
 
+/* 4 bit nibble to chr */
+static char nib_to_chr(uint8_t nib)
+{
+	nib &= 0xf;
+	if (nib < 10)
+		return nib + '0';
+	else
+		return nib - 10 + 'a';
+}
+
 /* same as get_chip_unique_serial but in hex-string format */
 static int get_chip_unique_serial_str(char *out, size_t len)
 {
@@ -103,8 +113,11 @@ static int get_chip_unique_serial_str(char *out, size_t len)
 	rc = get_chip_unique_serial(buf, sizeof(buf));
 	if (rc < 0)
 		return rc;
-	for (int i = 0; i < sizeof(buf); i++)
-		sprintf(&out[i * 2], "%02x", buf[i]);
+
+	for (int i = 0; i < sizeof(buf) && (2 * i) + 1 < len; i++) {
+		out[2 * i] = nib_to_chr(buf[i] >> 4);
+		out[(2 * i) + 1] = nib_to_chr(buf[i]);
+	}
 	return 0;
 }
 
