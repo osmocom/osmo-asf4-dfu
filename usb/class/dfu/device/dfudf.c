@@ -45,6 +45,11 @@ volatile enum usb_dfu_status dfu_status = USB_DFU_STATUS_OK;
 /* flashed the last given block */
 uint8_t dfu_download_data[512];
 volatile uint16_t dfu_download_length = 0;
+
+/* buffer the first block, to write it last */
+uint8_t dfu_download_data_first[512];
+uint16_t dfu_download_data_first_length = 0;
+
 volatile size_t dfu_download_offset = 0;
 
 /* only when flash done is true, flash rc is valid */
