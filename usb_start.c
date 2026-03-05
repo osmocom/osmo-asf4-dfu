@@ -157,6 +157,7 @@ void usb_dfu(void)
 
 	uint32_t application_start_address = BL_SIZE_BYTE;
 	ASSERT(application_start_address > 0);
+	int rc;
 
 	while (true) { // main DFU infinite loop
 		enum usb_dfu_state last_dfu_state = dfu_state;
@@ -167,7 +168,22 @@ void usb_dfu(void)
 		case USB_DFU_STATE_DFU_DNBUSY: // there is some data to be flashed
 			LED_SYSTEM_off(); // switch LED off to indicate we are flashing
 			if (dfu_download_length > 0) { // there is some data to be flashed
-				int32_t rc = flash_write(&FLASH_0, application_start_address + dfu_download_offset, dfu_download_data, dfu_download_length); // write downloaded data chunk to flash
+				/* The first block will be only erased, to ensure the
+				 * full firmware has been written.
+				 * In case of a power loss, the bootloader won't boot applications
+				 * if the first 4 byte are 0xffffffff
+				 */
+				if (dfu_download_offset == 0) {
+					dfu_download_length_first = dfu_download_length;
+					memcpy(dfu_download_data_first, dfu_download_data, dfu_download_length);
+					/* erasing the first page is enough, flash_write will keep care of the remaining ones */
+					rc = flash_erase(&FLASH_0, application_start_address, 1);
+				} else {
+					// write downloaded data chunk to flash
+					rc = flash_write(&FLASH_0, application_start_address + dfu_download_offset,
+							 dfu_download_data, dfu_download_length);
+				}
+
 				if (ERR_NONE == rc) {
 					dfu_state = USB_DFU_STATE_DFU_DNLOAD_IDLE; // indicate flashing this block has been completed
 				} else { // there has been a programming error
@@ -186,16 +202,39 @@ void usb_dfu(void)
 			}
 			LED_SYSTEM_on(); // switch LED on to indicate USB DFU can resume
 			break;
-		case USB_DFU_STATE_DFU_MANIFEST: // we can start manifestation (finish flashing)
-			// in theory every DFU files should have a suffix to with a CRC to check the data
-			// in practice most downloaded files are just the raw binary with DFU suffix
-			CRITICAL_SECTION_ENTER();
-			dfu_manifestation_complete = true; // we completed flashing and all checks
-			if (usb_dfu_func_desc->bmAttributes & USB_DFU_ATTRIBUTES_MANIFEST_TOLERANT) {
-				dfu_state = USB_DFU_STATE_DFU_MANIFEST_SYNC;
-			} else {
-				dfu_state = USB_DFU_STATE_DFU_MANIFEST_WAIT_RESET;
+		case USB_DFU_STATE_DFU_MANIFEST:
+			/* finish flashing by writing the first block */
+			rc = flash_write(&FLASH_0, application_start_address, dfu_download_data_first,
+					 dfu_download_length_first);
+			/* try to clear it, to ensure it doesn't boot into a broken application */
+			if (rc != ERR_NONE) {
+				flash_erase(&FLASH_0, application_start_address, 1);
 			}
+
+			CRITICAL_SECTION_ENTER();
+			switch (rc) {
+			case ERR_NONE:
+				if (usb_dfu_func_desc->bmAttributes & USB_DFU_ATTRIBUTES_MANIFEST_TOLERANT) {
+					dfu_state = USB_DFU_STATE_DFU_MANIFEST_SYNC;
+				} else {
+					dfu_state = USB_DFU_STATE_DFU_MANIFEST_WAIT_RESET;
+				}
+				dfu_status = USB_DFU_STATUS_OK;
+				break;
+			case ERR_BAD_ADDRESS:
+				dfu_state = USB_DFU_STATE_DFU_ERROR;
+				dfu_status = USB_DFU_STATUS_ERR_ADDRESS;
+				break;
+			case ERR_DENIED:
+				dfu_state = USB_DFU_STATE_DFU_ERROR;
+				dfu_status = USB_DFU_STATUS_ERR_WRITE;
+				break;
+			default:
+				dfu_state = USB_DFU_STATE_DFU_ERROR;
+				dfu_status = USB_DFU_STATUS_ERR_PROG;
+				break;
+			}
+			dfu_manifestation_complete = true; // we completed flashing and all checks
 			CRITICAL_SECTION_LEAVE();
 			break;
 		case USB_DFU_STATE_DFU_MANIFEST_WAIT_RESET:
