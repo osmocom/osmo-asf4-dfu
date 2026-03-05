@@ -52,6 +52,9 @@ extern volatile uint16_t dfu_download_length;
 /** Offset of where the downloaded data should be flashed in bytes */
 extern volatile size_t dfu_download_offset;
 
+extern uint8_t dfu_download_data_first[512];
+extern uint16_t dfu_download_length_first;
+
 /** when flash done is true, flash status is valid */
 extern volatile bool dfu_flash_done;
 /** Result of the last blocked flashed. */
