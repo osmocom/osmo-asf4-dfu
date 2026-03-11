@@ -48,9 +48,9 @@ extern volatile enum usb_dfu_status dfu_status;
  */
 extern uint8_t dfu_download_data[512];
 /** Length of downloaded data in bytes */
-extern uint16_t dfu_download_length;
+extern volatile uint16_t dfu_download_length;
 /** Offset of where the downloaded data should be flashed in bytes */
-extern size_t dfu_download_offset;
+extern volatile size_t dfu_download_offset;
 
 extern uint8_t dfu_download_data_first[512];
 extern volatile uint16_t dfu_download_length_first;

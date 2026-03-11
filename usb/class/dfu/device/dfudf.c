@@ -43,8 +43,8 @@ volatile enum usb_dfu_state dfu_state = USB_DFU_STATE_DFU_IDLE;
 volatile enum usb_dfu_status dfu_status = USB_DFU_STATUS_OK;
 
 uint8_t dfu_download_data[512];
-uint16_t dfu_download_length = 0;
-size_t dfu_download_offset = 0;
+volatile uint16_t dfu_download_length = 0;
+volatile size_t dfu_download_offset = 0;
 
 /* buffer the first block, to write it last */
 uint8_t dfu_download_data_first[512];
