@@ -184,6 +184,7 @@ void usb_dfu(void)
 							 dfu_download_data, dfu_download_length);
 				}
 
+				CRITICAL_SECTION_ENTER();
 				if (ERR_NONE == rc) {
 					dfu_state = USB_DFU_STATE_DFU_DNLOAD_IDLE; // indicate flashing this block has been completed
 				} else { // there has been a programming error
@@ -196,6 +197,7 @@ void usb_dfu(void)
 						dfu_status = USB_DFU_STATUS_ERR_PROG;
 					}
 				}
+				CRITICAL_SECTION_LEAVE();
 			} else { // there was no data to flash
 				// this case should not happen, but it's not a critical error
 				dfu_state = USB_DFU_STATE_DFU_DNLOAD_IDLE; // indicate flashing can continue
