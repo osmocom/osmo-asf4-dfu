@@ -42,7 +42,7 @@ static const usb_dfu_func_desc_t* usb_dfu_func_desc = (usb_dfu_func_desc_t*)&usb
 volatile enum usb_dfu_state dfu_state = USB_DFU_STATE_DFU_IDLE;
 volatile enum usb_dfu_status dfu_status = USB_DFU_STATUS_OK;
 
-uint8_t dfu_download_data[512];
+uint8_t __attribute__((aligned(4))) dfu_download_data[512];
 volatile uint16_t dfu_download_length = 0;
 volatile size_t dfu_download_offset = 0;
 
